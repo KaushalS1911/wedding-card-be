@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const UserModel = require('../models/user');
 const jwt = require('jsonwebtoken');
-const {ROLES} = require("../constants");
+const {generateToken} = require("../auth/jwt");
 
 // Create User
 const register = asyncHandler(async (req, res) => {
@@ -23,7 +23,7 @@ const login = asyncHandler(async (req, res) => {
         throw new Error('Invalid email or password');
     }
 
-    const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET);
+    const token = generateToken(user._id);
     res.status(200).json({token, message: 'Login successful'});
 });
 

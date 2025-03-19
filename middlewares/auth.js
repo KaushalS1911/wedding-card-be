@@ -1,3 +1,6 @@
+const {verifyToken} = require("../auth/jwt");
+const UserModel = require("../models/User");
+
 async function auth(req, res, next) {
     try {
         const authHeader = req.headers.authorization;
