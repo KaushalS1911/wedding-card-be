@@ -1,15 +1,15 @@
 const asyncHandler = require('express-async-handler');
-const User = require('../models/user');
+const UserModel = require('../models/user');
 const jwt = require('jsonwebtoken');
+const {ROLES} = require("../constants");
 
 // Create User
 const register = asyncHandler(async (req, res) => {
-    const {email, phone_number, role} = req.body;
-    const userExist = await User.exists({$or: [{email}, {phone_number}]});
+    const {email, contact, role} = req.body;
+    const userExist = await UserModel.exists({$or: [{email}, {contact}]});
     if (userExist) throw new Error('User already exists');
 
-    const userRole = role && ['customer', 'admin'].includes(role) ? role : 'customer';
-    const newUser = await User.create({...req.body, role: userRole});
+    const newUser = await UserModel.create({...req.body, role});
 
     res.status(201).json({data: newUser, message: 'Registered successfully'});
 });
@@ -17,19 +17,19 @@ const register = asyncHandler(async (req, res) => {
 // Login User
 const login = asyncHandler(async (req, res) => {
     const {email, password} = req.body;
-    const user = await User.findOne({email});
+    const user = await UserModel.findOne({email});
 
     if (!user || !(await user.isPasswordMatched(password))) {
         throw new Error('Invalid email or password');
     }
 
-    const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1d'});
+    const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET);
     res.status(200).json({token, message: 'Login successful'});
 });
 
 // Get Me
 const me = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await UserModel.findById(req.user._id).select('-password');
     if (!user) throw new Error('User not found');
     res.status(200).json({data: user});
 });
