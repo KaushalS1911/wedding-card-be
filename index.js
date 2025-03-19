@@ -2,7 +2,8 @@ const express = require("express");
 const connectionDB = require("./configs/connection");
 const {notFound, exceptionHandler} = require("./middlewares/exceptionErrorHandler");
 const app = express();
-const PORT = process.env.PORT || 4000;
+require("dotenv").config();
+const PORT = process.env.PORT || 8181;
 const cookieParser = require('cookie-parser')
 const cors = require('cors');
 
@@ -17,8 +18,6 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: false}));
-app.use(notFound);
-app.use(exceptionHandler);
 
 //Routes
 app.get("/", (req, res) => {
@@ -27,6 +26,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRouter);
 
+app.use(notFound);
+app.use(exceptionHandler);
+
 app.listen(PORT, () => {
     console.log(`Your Server is running at PORT ${PORT}`);
 });
+
