@@ -1,6 +1,6 @@
 const express = require("express");
 const connectionDB = require("./configs/connection");
-const {notFound, exceptionHandler} = require("./middlewares/exceptionErrorHandler");
+const exceptionHandler = require("./middlewares/exceptionErrorHandler");
 const app = express();
 require("dotenv").config();
 const PORT = process.env.PORT || 8080;
@@ -26,7 +26,9 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRouter);
 
-app.use(notFound);
+app.use("/", (req, res) => {
+    res.status(404).json({status: 404, message: "Route does not exist"});
+});
 app.use(exceptionHandler);
 
 app.listen(PORT, () => {
