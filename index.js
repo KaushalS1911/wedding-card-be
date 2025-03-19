@@ -3,7 +3,7 @@ const connectionDB = require("./configs/connection");
 const {notFound, exceptionHandler} = require("./middlewares/exceptionErrorHandler");
 const app = express();
 require("dotenv").config();
-const PORT = process.env.PORT || 8181;
+const PORT = process.env.PORT || 8080;
 const cookieParser = require('cookie-parser')
 const cors = require('cors');
 
