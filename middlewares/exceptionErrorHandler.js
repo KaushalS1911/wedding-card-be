@@ -4,7 +4,7 @@ const notFound = (req, res, next) => {
     next(error);
 };
 
-const errorHandler = (err, req, res, next) => {
+const exceptionHandler = (err, req, res, next) => {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     res.status(statusCode);
 
@@ -18,4 +18,4 @@ const errorHandler = (err, req, res, next) => {
     });
 };
 
-module.exports = {notFound, errorHandler};
+module.exports = {notFound, exceptionHandler};
