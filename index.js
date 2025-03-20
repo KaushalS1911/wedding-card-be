@@ -9,6 +9,7 @@ const cors = require('cors');
 
 //routes
 const authRouter = require("./routes/auth");
+const contactRouter = require("./routes/contact");
 
 //connection to database
 connectionDB(process.env.DB_CONNECTION_STRING);
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/contact", contactRouter)
 
 app.use("/", (req, res) => {
     res.status(404).json({status: 404, message: "Route does not exist"});
