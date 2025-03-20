@@ -23,7 +23,14 @@ const login = asyncHandler(async (req, res) => {
     }
 
     const token = generateToken(user._id);
-    res.status(200).json({token, message: 'Login successful'});
+    const userData = user.toObject();
+    delete userData.password;
+
+    res.status(200).json({
+        token,
+        user: userData,
+        message: 'Login successful'
+    });
 });
 
 // Get Me
