@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const BlogModel = require("../models/Blog");
+const BlogModel = require("../models/blog");
 const {uploadFile} = require("../services/uploadfile");
 
 // Create Blog
