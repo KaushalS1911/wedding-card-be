@@ -33,7 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/contact", contactRouter)
 app.use("/api/blog", blogRouter)
 app.use("/api/category", categoryRouter)
-app.use("/api/subcategory", subCategoryRouter)
+app.use("/api", subCategoryRouter)
 app.use("/api/template", templateRouter)
 
 app.use("/", (req, res) => {
