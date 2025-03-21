@@ -13,6 +13,7 @@ const contactRouter = require("./routes/contact");
 const blogRouter = require("./routes/blog");
 const categoryRouter = require("./routes/category");
 const templateRouter = require("./routes/template");
+const favouriteTemplatesRouter = require("./routes/favouriteTemplates");
 
 //connection to database
 connectionDB(process.env.DB_CONNECTION_STRING);
@@ -33,6 +34,7 @@ app.use("/api/contact", contactRouter)
 app.use("/api/blog", blogRouter)
 app.use("/api", categoryRouter)
 app.use("/api/template", templateRouter)
+app.use("/api/FavouriteTemplates", favouriteTemplatesRouter)
 
 app.use("/", (req, res) => {
     res.status(404).json({status: 404, message: "Route does not exist"});

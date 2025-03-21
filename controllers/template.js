@@ -18,9 +18,25 @@ const uploadImagesForColor = async (color, files) => {
 
 // Create Template
 const createTemplate = asyncHandler(async (req, res) => {
-    const {name, category, subcategory, type, desc, tags = [], colors, size, templateType} = req.body;
+    const {
+        name,
+        category,
+        subcategory,
+        type,
+        desc,
+        tags = [],
+        colors,
+        size,
+        templateType,
+        template_theme,
+        isSubscription,
+        orientation,
+        count,
+        template_photo,
+        isFavorite
+    } = req.body;
 
-    if (!name || !category || !subcategory || !type || !desc || !colors || !size || !templateType) {
+    if (!name || !category || !subcategory || !type || !desc || !colors || !size || !templateType || !template_theme || !orientation) {
         return res.status(400).json({error: 'All fields are required.'});
     }
 
@@ -53,6 +69,12 @@ const createTemplate = asyncHandler(async (req, res) => {
             colors: updatedColors,
             size,
             templateType,
+            template_theme,
+            isSubscription: isSubscription || false,
+            orientation,
+            count: count || 0,
+            template_photo: template_photo || false,
+            isFavorite: isFavorite || false
         });
 
         await template.save();
@@ -66,7 +88,23 @@ const createTemplate = asyncHandler(async (req, res) => {
 // Update Template
 const updateTemplate = asyncHandler(async (req, res) => {
     const {id} = req.params;
-    const {name, category, subcategory, type, desc, tags, colors, size, templateType} = req.body;
+    const {
+        name,
+        category,
+        subcategory,
+        type,
+        desc,
+        tags,
+        colors,
+        size,
+        templateType,
+        template_theme,
+        isSubscription,
+        orientation,
+        count,
+        template_photo,
+        isFavorite
+    } = req.body;
 
     const template = await Template.findById(id);
     if (!template) {
@@ -81,6 +119,12 @@ const updateTemplate = asyncHandler(async (req, res) => {
     if (tags) template.tags = tags;
     if (size) template.size = size;
     if (templateType) template.templateType = templateType;
+    if (template_theme) template.template_theme = template_theme;
+    if (isSubscription !== undefined) template.isSubscription = isSubscription;
+    if (orientation) template.orientation = orientation;
+    if (count !== undefined) template.count = count;
+    if (template_photo !== undefined) template.template_photo = template_photo;
+    if (isFavorite !== undefined) template.isFavorite = isFavorite;
 
     if (colors) {
         let parsedColors;
@@ -116,11 +160,50 @@ const updateTemplate = asyncHandler(async (req, res) => {
 
 // Get All Templates
 const getAllTemplates = asyncHandler(async (req, res) => {
-    const templates = await Template.find()
-        .populate('category', 'name')
-        .populate('subcategory', 'name')
-        .populate('type', 'name');
-    res.status(200).json({data: templates});
+    try {
+        const {template_theme, isSubscription, color, template_photo, orientation, isFavorite, sortBy} = req.query;
+
+        let filter = {};
+
+        if (template_theme) {
+            filter.template_theme = template_theme;
+        }
+
+        if (isSubscription !== undefined) {
+            filter.isSubscription = isSubscription === 'true';
+        }
+
+        if (color) {
+            filter['colors.color'] = color;
+        }
+
+        if (template_photo !== undefined) {
+            filter.template_photo = template_photo === 'true';
+        }
+
+        if (orientation) {
+            filter.orientation = orientation;
+        }
+
+        if (isFavorite !== undefined) {
+            filter.isFavorite = isFavorite === 'true';
+        }
+
+        let sortOptions = {};
+        if (sortBy === 'most_popular') {
+            sortOptions.count = -1;
+        }
+
+        const templates = await Template.find(filter)
+            .populate('category', 'name')
+            .populate('subcategory', 'name')
+            .populate('type', 'name')
+            .sort(sortOptions);
+
+        res.status(200).json({data: templates});
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
 });
 
 // Get Template By ID
