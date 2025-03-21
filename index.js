@@ -2,15 +2,18 @@ const express = require("express");
 const connectionDB = require("./configs/connection");
 const exceptionHandler = require("./middlewares/exceptionErrorHandler");
 const app = express();
-require("dotenv").config();
 const PORT = process.env.PORT || 8080;
 const cookieParser = require('cookie-parser')
 const cors = require('cors');
+require("dotenv").config();
 
 //routes
 const authRouter = require("./routes/auth");
 const contactRouter = require("./routes/contact");
 const blogRouter = require("./routes/blog");
+const categoryRouter = require("./routes/category");
+const subCategoryRouter = require("./routes/subCategory");
+const templateRouter = require("./routes/template");
 
 //connection to database
 connectionDB(process.env.DB_CONNECTION_STRING);
@@ -29,6 +32,9 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/contact", contactRouter)
 app.use("/api/blog", blogRouter)
+app.use("/api/category", categoryRouter)
+app.use("/api/subcategory", subCategoryRouter)
+app.use("/api/template", templateRouter)
 
 app.use("/", (req, res) => {
     res.status(404).json({status: 404, message: "Route does not exist"});
