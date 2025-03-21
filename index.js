@@ -12,7 +12,6 @@ const authRouter = require("./routes/auth");
 const contactRouter = require("./routes/contact");
 const blogRouter = require("./routes/blog");
 const categoryRouter = require("./routes/category");
-const subCategoryRouter = require("./routes/subCategory");
 const templateRouter = require("./routes/template");
 
 //connection to database
@@ -32,8 +31,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/contact", contactRouter)
 app.use("/api/blog", blogRouter)
-app.use("/api/category", categoryRouter)
-app.use("/api", subCategoryRouter)
+app.use("/api", categoryRouter)
 app.use("/api/template", templateRouter)
 
 app.use("/", (req, res) => {

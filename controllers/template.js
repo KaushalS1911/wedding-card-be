@@ -18,9 +18,9 @@ const uploadImagesForColor = async (color, files) => {
 
 // Create Template
 const createTemplate = asyncHandler(async (req, res) => {
-    const {name, category, subcategory, desc, tags = [], colors, size, templateType} = req.body;
+    const {name, category, subcategory, type, desc, tags = [], colors, size, templateType} = req.body;
 
-    if (!name || !category || !subcategory || !desc || !colors || !size || !templateType) {
+    if (!name || !category || !subcategory || !type || !desc || !colors || !size || !templateType) {
         return res.status(400).json({error: 'All fields are required.'});
     }
 
@@ -47,6 +47,7 @@ const createTemplate = asyncHandler(async (req, res) => {
             name,
             category,
             subcategory,
+            type,
             desc,
             tags,
             colors: updatedColors,
@@ -65,7 +66,7 @@ const createTemplate = asyncHandler(async (req, res) => {
 // Update Template
 const updateTemplate = asyncHandler(async (req, res) => {
     const {id} = req.params;
-    const {name, category, subcategory, desc, tags, colors, size, templateType} = req.body;
+    const {name, category, subcategory, type, desc, tags, colors, size, templateType} = req.body;
 
     const template = await Template.findById(id);
     if (!template) {
@@ -75,6 +76,7 @@ const updateTemplate = asyncHandler(async (req, res) => {
     if (name) template.name = name;
     if (category) template.category = category;
     if (subcategory) template.subcategory = subcategory;
+    if (type) template.type = type;
     if (desc) template.desc = desc;
     if (tags) template.tags = tags;
     if (size) template.size = size;
@@ -114,13 +116,20 @@ const updateTemplate = asyncHandler(async (req, res) => {
 
 // Get All Templates
 const getAllTemplates = asyncHandler(async (req, res) => {
-    const templates = await Template.find();
+    const templates = await Template.find()
+        .populate('category', 'name')
+        .populate('subcategory', 'name')
+        .populate('type', 'name');
     res.status(200).json({data: templates});
 });
 
 // Get Template By ID
 const getTemplateById = asyncHandler(async (req, res) => {
-    const template = await Template.findById(req.params.id);
+    const template = await Template.findById(req.params.id)
+        .populate('category', 'name')
+        .populate('subcategory', 'name')
+        .populate('type', 'name');
+
     if (!template) return res.status(404).json({error: 'Template not found'});
     res.status(200).json({data: template});
 });

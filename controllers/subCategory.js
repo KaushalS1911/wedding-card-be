@@ -71,31 +71,10 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
     res.status(200).json({message: 'Subcategory deleted successfully'});
 });
 
-// Get all categories with their subcategories using query and aggregation
-const getAllCategoriesWithSubcategories = asyncHandler(async (req, res) => {
-    const {categoryId} = req.query;
-    const matchCondition = categoryId ? {_id: categoryId} : {};
-
-    const categoriesWithSubcategories = await Category.aggregate([
-        {$match: matchCondition},
-        {
-            $lookup: {
-                from: 'subcategories',
-                localField: '_id',
-                foreignField: 'category',
-                as: 'subcategories'
-            }
-        }
-    ]);
-
-    res.status(200).json(categoriesWithSubcategories);
-});
-
 module.exports = {
     createSubcategory,
     getAllSubcategories,
     getSubcategoryById,
     updateSubcategory,
     deleteSubcategory,
-    getAllCategoriesWithSubcategories
 };
