@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const FavouriteTemplate = require('../models/favouriteTemplates');
-const Template = require('../models/Template');
+const Template = require('../models/template');
 
 // Create Favourite Template
 const createFavouriteTemplate = asyncHandler(async (req, res) => {

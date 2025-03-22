@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const PremiumModel = require("../models/Premium");
+const PremiumModel = require("../models/premium");
 
 // Create a new premium subscription
 const createPremium = asyncHandler(async (req, res) => {
