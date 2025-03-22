@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
         enum: [ROLES.ADMIN, ROLES.USER],
         default: ROLES.USER,
     },
+    isPremium: {type: Boolean, default: false},
 });
 
 userSchema.pre("save", async function (next) {

@@ -29,11 +29,11 @@ const createTemplate = asyncHandler(async (req, res) => {
         size,
         templateType,
         template_theme,
-        isSubscription,
         orientation,
         count,
         template_photo,
-        isFavorite
+        isFavorite,
+        isPremium
     } = req.body;
 
     if (!name || !category || !subcategory || !type || !desc || !colors || !size || !templateType || !template_theme || !orientation) {
@@ -70,11 +70,11 @@ const createTemplate = asyncHandler(async (req, res) => {
             size,
             templateType,
             template_theme,
-            isSubscription: isSubscription || false,
             orientation,
             count: count || 0,
             template_photo: template_photo || false,
-            isFavorite: isFavorite || false
+            isFavorite: isFavorite || false,
+            isPremium: isPremium || false
         });
 
         await template.save();
@@ -99,11 +99,11 @@ const updateTemplate = asyncHandler(async (req, res) => {
         size,
         templateType,
         template_theme,
-        isSubscription,
         orientation,
         count,
         template_photo,
-        isFavorite
+        isFavorite,
+        isPremium
     } = req.body;
 
     const template = await Template.findById(id);
@@ -120,11 +120,11 @@ const updateTemplate = asyncHandler(async (req, res) => {
     if (size) template.size = size;
     if (templateType) template.templateType = templateType;
     if (template_theme) template.template_theme = template_theme;
-    if (isSubscription !== undefined) template.isSubscription = isSubscription;
     if (orientation) template.orientation = orientation;
     if (count !== undefined) template.count = count;
     if (template_photo !== undefined) template.template_photo = template_photo;
     if (isFavorite !== undefined) template.isFavorite = isFavorite;
+    if (isPremium !== undefined) template.isPremium = isPremium;
 
     if (colors) {
         let parsedColors;
@@ -141,7 +141,6 @@ const updateTemplate = asyncHandler(async (req, res) => {
                     if (!color.color || !color.hex || !Array.isArray(color.product_images)) {
                         throw new Error('Invalid color data.');
                     }
-
                     color.product_images = await uploadImagesForColor(color, req.files);
                     return color;
                 })
@@ -161,7 +160,7 @@ const updateTemplate = asyncHandler(async (req, res) => {
 // Get All Templates
 const getAllTemplates = asyncHandler(async (req, res) => {
     try {
-        const {template_theme, isSubscription, color, template_photo, orientation, isFavorite, sortBy} = req.query;
+        const {template_theme, isPremium, color, template_photo, orientation, isFavorite, sortBy} = req.query;
 
         let filter = {};
 
@@ -169,8 +168,8 @@ const getAllTemplates = asyncHandler(async (req, res) => {
             filter.template_theme = template_theme;
         }
 
-        if (isSubscription !== undefined) {
-            filter.isSubscription = isSubscription === 'true';
+        if (isPremium !== undefined) {
+            filter.isPremium = isPremium === 'true';
         }
 
         if (color) {

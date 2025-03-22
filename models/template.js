@@ -66,10 +66,6 @@ const templateSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        isSubscription: {
-            type: Boolean,
-            default: false,
-        },
         orientation: {
             type: String,
             enum: ['portrait', 'landscape', 'square'],
@@ -84,6 +80,10 @@ const templateSchema = new mongoose.Schema(
             default: false,
         },
         isFavorite: {
+            type: Boolean,
+            default: false,
+        },
+        isPremium: {
             type: Boolean,
             default: false,
         },
