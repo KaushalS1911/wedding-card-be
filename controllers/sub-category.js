@@ -6,40 +6,40 @@ const Category = require('../models/category');
 // Create a new subcategory
 const createSubcategory = asyncHandler(async (req, res) => {
     const {name} = req.body;
-    const {parentCategory, category} = req.params;
+    const {categoryID} = req.params;
 
     if (!name) {
-        return res.status(400).json({message: 'Subcategory name is required'});
+        return res.status(400).json({error: 'Subcategory name is required'});
     }
 
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-        return res.status(400).json({message: 'Invalid category ID'});
+    if (!mongoose.Types.ObjectId.isValid(categoryID)) {
+        return res.status(400).json({error: 'Invalid Category ID'});
     }
 
-    const categoryExists = await Category.findById(category);
+    const categoryExists = await Category.findById(categoryID);
     if (!categoryExists) {
-        return res.status(404).json({message: 'Category not found'});
+        return res.status(404).json({error: 'Category not found'});
     }
 
-    const subcategoryExist = await Subcategory.exists({name, category});
+    const subcategoryExist = await Subcategory.exists({name, category: categoryID});
     if (subcategoryExist) {
-        return res.status(400).json({message: 'Subcategory with this name already exists in this category'});
+        return res.status(400).json({error: 'Subcategory with this name already exists in this category'});
     }
 
-    const newSubcategory = await Subcategory.create({name, category});
+    const newSubcategory = await Subcategory.create({name, category: categoryID});
     res.status(201).json({data: newSubcategory, message: 'Subcategory created successfully'});
 });
 
 // Get all subcategories with category populated
 const allSubcategories = asyncHandler(async (req, res) => {
-    const {category} = req.params;
+    const {categoryID} = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-        return res.status(400).json({message: 'Invalid category ID'});
+    if (!mongoose.Types.ObjectId.isValid(categoryID)) {
+        return res.status(400).json({error: 'Invalid Category ID'});
     }
 
-    const subcategories = await Subcategory.find({category}).populate('category');
-    res.status(200).json(subcategories);
+    const subcategories = await Subcategory.find({category: categoryID}).populate('category', 'name');
+    res.status(200).json({data: subcategories});
 });
 
 // Get a single subcategory by ID with category populated
@@ -47,46 +47,44 @@ const subcategoryById = asyncHandler(async (req, res) => {
     const {subcategory} = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-        return res.status(400).json({message: 'Invalid subcategory ID'});
+        return res.status(400).json({error: 'Invalid Subcategory ID'});
     }
 
-    const subcategoryData = await Subcategory.findById(subcategory).populate('category');
+    const subcategoryData = await Subcategory.findById(subcategory).populate('category', 'name');
     if (!subcategoryData) {
-        return res.status(404).json({message: 'Subcategory not found'});
+        return res.status(404).json({error: 'Subcategory not found'});
     }
-    res.status(200).json(subcategoryData);
+    res.status(200).json({data: subcategoryData});
 });
 
 // Update subcategory
 const updateSubcategory = asyncHandler(async (req, res) => {
-    const {subcategory, category} = req.params;
+    const {subcategory, categoryID} = req.params;
     const {name, newCategory} = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-        return res.status(400).json({message: 'Invalid subcategory ID'});
+        return res.status(400).json({error: 'Invalid Subcategory ID'});
     }
 
     if (newCategory && !mongoose.Types.ObjectId.isValid(newCategory)) {
-        return res.status(400).json({message: 'Invalid category ID'});
+        return res.status(400).json({error: 'Invalid Category ID'});
     }
 
     if (newCategory) {
         const categoryExists = await Category.findById(newCategory);
         if (!categoryExists) {
-            return res.status(404).json({message: 'Category not found'});
+            return res.status(404).json({error: 'Category not found'});
         }
     }
 
-    const updatedSubcategory = await Subcategory.findByIdAndUpdate(subcategory, {
-        name,
-        category: newCategory || category
-    }, {
-        new: true,
-        runValidators: true
-    }).populate('category');
+    const updatedSubcategory = await Subcategory.findByIdAndUpdate(
+        subcategory,
+        {name, category: newCategory || categoryID},
+        {new: true, runValidators: true}
+    ).populate('category', 'name');
 
     if (!updatedSubcategory) {
-        return res.status(404).json({message: 'Subcategory not found'});
+        return res.status(404).json({error: 'Subcategory not found'});
     }
 
     res.status(200).json({data: updatedSubcategory, message: 'Subcategory updated successfully'});
@@ -97,14 +95,20 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
     const {subcategory} = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-        return res.status(400).json({message: 'Invalid subcategory ID'});
+        return res.status(400).json({error: 'Invalid Subcategory ID'});
     }
 
     const subcategoryData = await Subcategory.findByIdAndDelete(subcategory);
     if (!subcategoryData) {
-        return res.status(404).json({message: 'Subcategory not found'});
+        return res.status(404).json({error: 'Subcategory not found'});
     }
     res.status(200).json({message: 'Subcategory deleted successfully'});
+});
+
+// Get all subcategories with category population
+const AllSubcategory = asyncHandler(async (req, res) => {
+    const subcategories = await Subcategory.find().populate('category', 'name');
+    res.status(200).json({data: subcategories});
 });
 
 module.exports = {
@@ -113,4 +117,5 @@ module.exports = {
     subcategoryById,
     updateSubcategory,
     deleteSubcategory,
+    AllSubcategory
 };
