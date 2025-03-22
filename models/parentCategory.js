@@ -1,16 +1,11 @@
 const mongoose = require('mongoose');
 
-const categorySchema = new mongoose.Schema({
+const parentCategorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
         trim: true,
         unique: true
-    },
-    parentCategory: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'ParentCategory',
-        required: false
     },
     status: {
         type: String,
@@ -19,4 +14,4 @@ const categorySchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-module.exports = mongoose.model('Category', categorySchema);
+module.exports = mongoose.model('ParentCategory', parentCategorySchema);

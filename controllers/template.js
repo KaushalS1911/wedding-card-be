@@ -20,8 +20,6 @@ const uploadImagesForColor = async (color, files) => {
 const createTemplate = asyncHandler(async (req, res) => {
     const {
         name,
-        category,
-        subcategory,
         type,
         desc,
         tags = [],
@@ -36,7 +34,7 @@ const createTemplate = asyncHandler(async (req, res) => {
         isPremium
     } = req.body;
 
-    if (!name || !category || !subcategory || !type || !desc || !colors || !size || !templateType || !template_theme || !orientation) {
+    if (!name || !type || !desc || !colors || !size || !templateType || !template_theme || !orientation) {
         return res.status(400).json({error: 'All fields are required.'});
     }
 
@@ -61,8 +59,6 @@ const createTemplate = asyncHandler(async (req, res) => {
 
         const template = new Template({
             name,
-            category,
-            subcategory,
             type,
             desc,
             tags,
@@ -90,8 +86,6 @@ const updateTemplate = asyncHandler(async (req, res) => {
     const {id} = req.params;
     const {
         name,
-        category,
-        subcategory,
         type,
         desc,
         tags,
@@ -112,8 +106,6 @@ const updateTemplate = asyncHandler(async (req, res) => {
     }
 
     if (name) template.name = name;
-    if (category) template.category = category;
-    if (subcategory) template.subcategory = subcategory;
     if (type) template.type = type;
     if (desc) template.desc = desc;
     if (tags) template.tags = tags;
@@ -194,8 +186,6 @@ const getAllTemplates = asyncHandler(async (req, res) => {
         }
 
         const templates = await Template.find(filter)
-            .populate('category', 'name')
-            .populate('subcategory', 'name')
             .populate('type', 'name')
             .sort(sortOptions);
 
@@ -208,8 +198,6 @@ const getAllTemplates = asyncHandler(async (req, res) => {
 // Get Template By ID
 const getTemplateById = asyncHandler(async (req, res) => {
     const template = await Template.findById(req.params.id)
-        .populate('category', 'name')
-        .populate('subcategory', 'name')
         .populate('type', 'name');
 
     if (!template) return res.status(404).json({error: 'Template not found'});

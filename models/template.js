@@ -23,16 +23,6 @@ const colorSchema = new mongoose.Schema({
 
 const templateSchema = new mongoose.Schema(
     {
-        category: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Category',
-            required: true,
-        },
-        subcategory: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Subcategory',
-            required: true,
-        },
         type: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Type',

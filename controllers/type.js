@@ -89,6 +89,20 @@ const getAllCategoriesWithSubcategoriesAndTypes = asyncHandler(async (req, res) 
     const categories = await Category.aggregate([
         {
             $lookup: {
+                from: 'parentcategories',
+                localField: 'parentCategory',
+                foreignField: '_id',
+                as: 'parentCategory'
+            }
+        },
+        {
+            $unwind: {
+                path: '$parentCategory',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
                 from: 'subcategories',
                 localField: '_id',
                 foreignField: 'category',
@@ -113,6 +127,7 @@ const getAllCategoriesWithSubcategoriesAndTypes = asyncHandler(async (req, res) 
             $group: {
                 _id: '$_id',
                 name: {$first: '$name'},
+                parentCategory: {$first: '$parentCategory'},
                 createdAt: {$first: '$createdAt'},
                 subcategories: {$push: '$subcategories'}
             }
@@ -121,6 +136,7 @@ const getAllCategoriesWithSubcategoriesAndTypes = asyncHandler(async (req, res) 
 
     res.status(200).json(categories);
 });
+
 
 module.exports = {
     createType,

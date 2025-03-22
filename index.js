@@ -34,7 +34,7 @@ app.use("/api/contact", contactRouter)
 app.use("/api/blog", blogRouter)
 app.use("/api", categoryRouter)
 app.use("/api/template", templateRouter)
-app.use("/api/FavouriteTemplates", favouriteTemplatesRouter)
+app.use("/api/favouritetemplates", favouriteTemplatesRouter)
 
 app.use("/", (req, res) => {
     res.status(404).json({status: 404, message: "Route does not exist"});

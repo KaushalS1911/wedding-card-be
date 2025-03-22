@@ -23,8 +23,22 @@ const {
     deleteType,
     getAllTypes
 } = require("../controllers/type");
+const {
+    createParentCategory,
+    getAllParentCategories,
+    getParentCategoryById,
+    updateParentCategory,
+    deleteParentCategory
+} = require("../controllers/parentCategory");
 
 const router = express.Router();
+
+// Routes for Parent Categories
+router.post('parent-category/', auth, isAdmin, createParentCategory);
+router.get('parent-category/', getAllParentCategories);
+router.get('parent-category/:id', auth, isAdmin, getParentCategoryById);
+router.put('parent-category/:id', auth, isAdmin, updateParentCategory);
+router.delete('parent-category/:id', auth, isAdmin, deleteParentCategory);
 
 // Category Routes
 router.post('/category', auth, isAdmin, createCategory);
