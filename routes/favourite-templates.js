@@ -3,17 +3,17 @@ const auth = require("../middlewares/auth");
 const {isAdmin} = require("../middlewares/isAdmin");
 const {
     createFavouriteTemplate,
-    getFavouriteTemplates,
-    getFavouriteTemplateById,
+    favouriteTemplates,
+    favouriteTemplateById,
     updateFavouriteTemplate,
     deleteFavouriteTemplate,
-} = require('../controllers/favouriteTemplates');
+} = require('../controllers/favourite-templates');
 
 const router = express.Router();
 
 router.post('/', auth, createFavouriteTemplate);
-router.get('/:user', auth, getFavouriteTemplates);
-router.get('/single/:id', auth, isAdmin, getFavouriteTemplateById);
+router.get('/:user', auth, favouriteTemplates);
+router.get('/single/:id', auth, isAdmin, favouriteTemplateById);
 router.put('/:id', auth, isAdmin, updateFavouriteTemplate);
 router.delete('/:id', auth, deleteFavouriteTemplate);
 

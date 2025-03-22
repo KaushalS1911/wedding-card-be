@@ -9,7 +9,7 @@ const colorSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    product_images: {
+    productImages: {
         type: [String],
         required: true,
         validate: {
@@ -52,7 +52,7 @@ const templateSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        template_theme: {
+        templateTheme: {
             type: String,
             required: true,
         },
@@ -65,7 +65,7 @@ const templateSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
-        template_photo: {
+        templatePhoto: {
             type: Boolean,
             default: false,
         },

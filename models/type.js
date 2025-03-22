@@ -7,12 +7,7 @@ const typeSchema = new mongoose.Schema({
         trim: true,
         unique: true,
     },
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true
-    },
-    subcategory: {
+    subCategory: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Subcategory',
         required: true

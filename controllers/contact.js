@@ -14,13 +14,13 @@ const createContact = asyncHandler(async (req, res) => {
 });
 
 // Get all contacts
-const getContacts = asyncHandler(async (req, res) => {
+const contacts = asyncHandler(async (req, res) => {
     const contacts = await ContactModel.find({});
     res.status(200).json({data: contacts});
 });
 
 // Get a single contact by ID
-const getContactById = asyncHandler(async (req, res) => {
+const contactById = asyncHandler(async (req, res) => {
     const contact = await ContactModel.findById(req.params.id);
     if (!contact) throw new Error('Contact not found');
 
@@ -43,4 +43,4 @@ const deleteContact = asyncHandler(async (req, res) => {
     res.status(200).json({message: 'Contact deleted successfully'});
 });
 
-module.exports = {createContact, getContacts, getContactById, updateContact, deleteContact};
+module.exports = {createContact, contacts, contactById, updateContact, deleteContact};

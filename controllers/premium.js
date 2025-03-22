@@ -18,13 +18,13 @@ const createPremium = asyncHandler(async (req, res) => {
 });
 
 // Get all premium subscriptions
-const getAllPremiums = asyncHandler(async (req, res) => {
+const allPremiums = asyncHandler(async (req, res) => {
     const premiums = await PremiumModel.find().populate('userId', 'firstName lastName email');
     res.status(200).json({data: premiums});
 });
 
 // Get a single premium subscription by ID
-const getPremiumById = asyncHandler(async (req, res) => {
+const premiumById = asyncHandler(async (req, res) => {
     const {id} = req.params;
     const premium = await PremiumModel.findById(id).populate('userId', 'firstName lastName email');
 
@@ -77,8 +77,8 @@ const sendReminder = asyncHandler(async (req, res) => {
 
 module.exports = {
     createPremium,
-    getAllPremiums,
-    getPremiumById,
+    allPremiums,
+    premiumById,
     updatePremium,
     deletePremium,
     sendReminder,

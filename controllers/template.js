@@ -26,15 +26,15 @@ const createTemplate = asyncHandler(async (req, res) => {
         colors,
         size,
         templateType,
-        template_theme,
+        templateTheme,
         orientation,
         count,
-        template_photo,
+        templatePhoto,
         isFavorite,
         isPremium
     } = req.body;
 
-    if (!name || !type || !desc || !colors || !size || !templateType || !template_theme || !orientation) {
+    if (!name || !type || !desc || !colors || !size || !templateType || !templateTheme || !orientation) {
         return res.status(400).json({error: 'All fields are required.'});
     }
 
@@ -49,10 +49,10 @@ const createTemplate = asyncHandler(async (req, res) => {
     try {
         const updatedColors = await Promise.all(
             parsedColors.map(async (color) => {
-                if (!color.color || !color.hex || !Array.isArray(color.product_images)) {
+                if (!color.color || !color.hex || !Array.isArray(color.productImages)) {
                     throw new Error('Invalid color data.');
                 }
-                color.product_images = await uploadImagesForColor(color, req.files);
+                color.productImages = await uploadImagesForColor(color, req.files);
                 return color;
             })
         );
@@ -65,10 +65,10 @@ const createTemplate = asyncHandler(async (req, res) => {
             colors: updatedColors,
             size,
             templateType,
-            template_theme,
+            templateTheme,
             orientation,
             count: count || 0,
-            template_photo: template_photo || false,
+            template_photo: templatePhoto || false,
             isFavorite: isFavorite || false,
             isPremium: isPremium || false
         });
@@ -92,10 +92,10 @@ const updateTemplate = asyncHandler(async (req, res) => {
         colors,
         size,
         templateType,
-        template_theme,
+        templateTheme,
         orientation,
         count,
-        template_photo,
+        templatePhoto,
         isFavorite,
         isPremium
     } = req.body;
@@ -111,10 +111,10 @@ const updateTemplate = asyncHandler(async (req, res) => {
     if (tags) template.tags = tags;
     if (size) template.size = size;
     if (templateType) template.templateType = templateType;
-    if (template_theme) template.template_theme = template_theme;
+    if (templateTheme) template.template_theme = templateTheme;
     if (orientation) template.orientation = orientation;
     if (count !== undefined) template.count = count;
-    if (template_photo !== undefined) template.template_photo = template_photo;
+    if (templatePhoto !== undefined) template.template_photo = templatePhoto;
     if (isFavorite !== undefined) template.isFavorite = isFavorite;
     if (isPremium !== undefined) template.isPremium = isPremium;
 
@@ -130,10 +130,10 @@ const updateTemplate = asyncHandler(async (req, res) => {
         try {
             const updatedColors = await Promise.all(
                 parsedColors.map(async (color) => {
-                    if (!color.color || !color.hex || !Array.isArray(color.product_images)) {
+                    if (!color.color || !color.hex || !Array.isArray(color.productImages)) {
                         throw new Error('Invalid color data.');
                     }
-                    color.product_images = await uploadImagesForColor(color, req.files);
+                    color.productImages = await uploadImagesForColor(color, req.files);
                     return color;
                 })
             );
@@ -150,14 +150,14 @@ const updateTemplate = asyncHandler(async (req, res) => {
 });
 
 // Get All Templates
-const getAllTemplates = asyncHandler(async (req, res) => {
+const allTemplates = asyncHandler(async (req, res) => {
     try {
-        const {template_theme, isPremium, color, template_photo, orientation, isFavorite, sortBy} = req.query;
+        const {templateTheme, isPremium, color, templatePhoto, orientation, isFavorite, sortBy} = req.query;
 
         let filter = {};
 
-        if (template_theme) {
-            filter.template_theme = template_theme;
+        if (templateTheme) {
+            filter.templateTheme = templateTheme;
         }
 
         if (isPremium !== undefined) {
@@ -168,8 +168,8 @@ const getAllTemplates = asyncHandler(async (req, res) => {
             filter['colors.color'] = color;
         }
 
-        if (template_photo !== undefined) {
-            filter.template_photo = template_photo === 'true';
+        if (templatePhoto !== undefined) {
+            filter.templatePhoto = templatePhoto === 'true';
         }
 
         if (orientation) {
@@ -196,7 +196,7 @@ const getAllTemplates = asyncHandler(async (req, res) => {
 });
 
 // Get Template By ID
-const getTemplateById = asyncHandler(async (req, res) => {
+const templateById = asyncHandler(async (req, res) => {
     const template = await Template.findById(req.params.id)
         .populate('type', 'name');
 
@@ -211,4 +211,4 @@ const deleteTemplate = asyncHandler(async (req, res) => {
     res.status(200).json({message: 'Template deleted successfully'});
 });
 
-module.exports = {createTemplate, updateTemplate, getAllTemplates, getTemplateById, deleteTemplate};
+module.exports = {createTemplate, updateTemplate, allTemplates, templateById, deleteTemplate};

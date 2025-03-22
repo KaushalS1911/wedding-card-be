@@ -9,14 +9,15 @@ require("dotenv").config();
 
 //routes
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
 const contactRouter = require("./routes/contact");
 const blogRouter = require("./routes/blog");
-const categoryRouter = require("./routes/category");
+const parentCategoryRouter = require("./routes/parent-category");
 const templateRouter = require("./routes/template");
-const favouriteTemplatesRouter = require("./routes/favouriteTemplates");
+const favouriteTemplatesRouter = require("./routes/favourite-templates");
 
 //connection to database
-connectionDB(process.env.DB_CONNECTION_STRING);
+connectionDB();
 
 //Middlewares
 app.use(cors());
@@ -30,11 +31,12 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 app.use("/api/contact", contactRouter)
 app.use("/api/blog", blogRouter)
-app.use("/api", categoryRouter)
+app.use("/api/parent-category", parentCategoryRouter)
 app.use("/api/template", templateRouter)
-app.use("/api/favouritetemplates", favouriteTemplatesRouter)
+app.use("/api/favourite-template", favouriteTemplatesRouter)
 
 app.use("/", (req, res) => {
     res.status(404).json({status: 404, message: "Route does not exist"});

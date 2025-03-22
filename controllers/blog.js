@@ -40,13 +40,13 @@ const createBlog = asyncHandler(async (req, res) => {
 });
 
 // Get All Blogs
-const getAllBlogs = asyncHandler(async (req, res) => {
+const allBlogs = asyncHandler(async (req, res) => {
     const blogs = await BlogModel.find();
     res.status(200).json({data: blogs});
 });
 
 // Get Single Blog
-const getBlogById = asyncHandler(async (req, res) => {
+const blogById = asyncHandler(async (req, res) => {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
         throw new Error("Blog not found");
@@ -92,8 +92,8 @@ const deleteBlog = asyncHandler(async (req, res) => {
 
 module.exports = {
     createBlog,
-    getAllBlogs,
-    getBlogById,
+    allBlogs,
+    blogById,
     updateBlog,
     deleteBlog
 };

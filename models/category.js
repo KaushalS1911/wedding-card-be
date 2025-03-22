@@ -12,11 +12,6 @@ const categorySchema = new mongoose.Schema({
         ref: 'ParentCategory',
         required: false
     },
-    status: {
-        type: String,
-        enum: ['active', 'inactive'],
-        default: 'active'
-    }
 }, {timestamps: true});
 
 module.exports = mongoose.model('Category', categorySchema);

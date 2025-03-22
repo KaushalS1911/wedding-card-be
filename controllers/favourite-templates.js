@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const FavouriteTemplate = require('../models/favouriteTemplates');
+const FavouriteTemplate = require('../models/favourite-templates');
 const Template = require('../models/template');
 
 // Create Favourite Template
@@ -17,7 +17,7 @@ const createFavouriteTemplate = asyncHandler(async (req, res) => {
 });
 
 // Get All Favourite Templates
-const getFavouriteTemplates = asyncHandler(async (req, res) => {
+const favouriteTemplates = asyncHandler(async (req, res) => {
     const {user} = req.params;
 
     const favourites = await FavouriteTemplate.find({user}).populate('template');
@@ -25,7 +25,7 @@ const getFavouriteTemplates = asyncHandler(async (req, res) => {
 });
 
 // Get Single Favourite Template
-const getFavouriteTemplateById = asyncHandler(async (req, res) => {
+const favouriteTemplateById = asyncHandler(async (req, res) => {
     const {id} = req.params;
 
     const favourite = await FavouriteTemplate.findById(id).populate('template');
@@ -65,8 +65,8 @@ const deleteFavouriteTemplate = asyncHandler(async (req, res) => {
 
 module.exports = {
     createFavouriteTemplate,
-    getFavouriteTemplates,
-    getFavouriteTemplateById,
+    favouriteTemplateById,
+    favouriteTemplates,
     updateFavouriteTemplate,
     deleteFavouriteTemplate,
 };
