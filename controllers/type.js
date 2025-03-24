@@ -154,9 +154,9 @@ const getAllCategoriesWithSubcategoriesAndTypes = asyncHandler(async (req, res) 
     }
 });
 
-// Get all types with category and subcategory populated
+// Get all types with subcategory populated
 const AllType = asyncHandler(async (req, res) => {
-    const types = await Type.find().populate('category', 'name').populate('subCategory', 'name');
+    const types = await Type.find().populate('subCategory', 'name');
     res.status(200).json({data: types});
 });
 

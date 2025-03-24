@@ -10,6 +10,9 @@ const register = asyncHandler(async (req, res) => {
 
     const newUser = await UserModel.create({...req.body, role});
 
+    const newConfig = new Config({company_details: {userId: newUser._id}});
+    await newConfig.save();
+
     res.status(201).json({data: newUser, message: 'Registered successfully'});
 });
 
