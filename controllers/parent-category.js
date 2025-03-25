@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const ParentCategory = require('../models/parent-category');
+const Category = require('../models/category');
+const Subcategory = require('../models/sub-category');
+const Type = require('../models/type');
 
 // Create a new parent category
 const createParentCategory = asyncHandler(async (req, res) => {
@@ -65,12 +68,26 @@ const deleteParentCategory = asyncHandler(async (req, res) => {
         return res.status(400).json({error: 'Invalid category ID'});
     }
 
+    const categories = await Category.find({parentCategory: req.params.id});
+
+    const subCategoryIds = [];
+    for (const category of categories) {
+        const subCategories = await Subcategory.find({category: category._id});
+        subCategoryIds.push(...subCategories.map(sub => sub._id));
+    }
+
+    await Type.deleteMany({subCategory: {$in: subCategoryIds}});
+
+    await Subcategory.deleteMany({_id: {$in: subCategoryIds}});
+
+    await Category.deleteMany({parentCategory: req.params.id});
+
     const deletedCategory = await ParentCategory.findByIdAndDelete(req.params.id);
     if (!deletedCategory) {
         return res.status(404).json({error: 'Parent Category not found'});
     }
 
-    res.status(200).json({message: 'Parent Category deleted successfully'});
+    res.status(200).json({message: 'Parent Category and all related data deleted successfully'});
 });
 
 // Get all categories with optional parent category population

@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('passport');
+const auth = require("../middlewares/auth");
 const {
     register,
     login,
@@ -11,7 +12,7 @@ const router = express.Router();
 // Standard Auth Routes
 router.post('/register', register);
 router.post('/login', login);
-router.get('/me', me);
+router.get('/me', auth, me);
 
 // Google OAuth Routes
 router.get('/google', passport.authenticate('google', {scope: ['profile', 'email']}));
