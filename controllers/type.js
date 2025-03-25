@@ -27,10 +27,9 @@ const createType = asyncHandler(async (req, res) => {
 
 // Get all types with category and subcategory populated
 const allTypes = asyncHandler(async (req, res) => {
-    const {categoryID, subcategoryID} = req.params;
+    const {subcategoryID} = req.params;
 
-    const types = await Type.find({category: categoryID, subCategory: subcategoryID})
-        .populate('category', 'name')
+    const types = await Type.find({subCategory: subcategoryID})
         .populate('subCategory', 'name');
     res.status(200).json({data: types});
 });
@@ -57,21 +56,21 @@ const typeById = asyncHandler(async (req, res) => {
 // Update type
 const updateType = asyncHandler(async (req, res) => {
     const {typeID} = req.params;
-    const {name, categoryID, subcategoryID} = req.body;
+    const {name, subcategoryID} = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(typeID)) {
         return res.status(400).json({error: 'Invalid Type ID'});
     }
 
-    if ((categoryID && !mongoose.Types.ObjectId.isValid(categoryID)) || (subcategoryID && !mongoose.Types.ObjectId.isValid(subcategoryID))) {
+    if (subcategoryID && !mongoose.Types.ObjectId.isValid(subcategoryID)) {
         return res.status(400).json({error: 'Invalid Category or Subcategory ID'});
     }
 
     const updatedType = await Type.findByIdAndUpdate(
         typeID,
-        {name, category: categoryID, subCategory: subcategoryID},
+        {name, subCategory: subcategoryID},
         {new: true, runValidators: true}
-    ).populate('category', 'name').populate('subCategory', 'name');
+    ).populate('subCategory', 'name');
 
     if (!updatedType) {
         return res.status(404).json({error: 'Type not found'});

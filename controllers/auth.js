@@ -1,17 +1,22 @@
 const asyncHandler = require('express-async-handler');
 const UserModel = require('../models/user');
 const {generateToken} = require("../auth/jwt");
+const ROLES = require("../constants");
+const Config = require("../models/config");
 
 // Create User
 const register = asyncHandler(async (req, res) => {
     const {email, contact, role} = req.body;
+
     const userExist = await UserModel.exists({$or: [{email}, {contact}]});
     if (userExist) throw new Error('User already exists');
 
     const newUser = await UserModel.create({...req.body, role});
 
-    const newConfig = new Config({company_details: {userId: newUser._id}});
-    await newConfig.save();
+    if (role === ROLES.ADMIN) {
+        const newConfig = new Config({company_details: {userId: newUser._id}});
+        await newConfig.save();
+    }
 
     res.status(201).json({data: newUser, message: 'Registered successfully'});
 });
