@@ -58,7 +58,7 @@ const createTemplate = asyncHandler(async (req, res) => {
                 .filter(file => file.fieldname === `templateImages[${index}]`)
                 .map(file => file.buffer);
 
-            const uploadedImages = await uploadFiles(productImages);
+            const uploadedImages = await uploadImagesForColor(productImages);
             return {...color, productImages: uploadedImages};
         }));
 
@@ -132,27 +132,13 @@ const updateTemplate = asyncHandler(async (req, res) => {
             return res.status(400).json({error: error.message});
         }
 
-        const files = req.files || [];
-
         try {
-            const updatedColors = await Promise.all(parsedColors.map(async (color, index) => {
+            const updatedColors = await Promise.all(parsedColors.map(async (color) => {
                 if (!color.color || !color.hex) {
                     throw new Error('Invalid color data.');
                 }
-
-                const productImages = files
-                    .filter(file => file.fieldname === `productImages[${index}]`)
-                    .map(file => file.buffer);
-
-                const uploadedImages = await uploadFiles(productImages);
-
-                return {
-                    ...color,
-                    productImages: [
-                        ...(template.colors[index]?.productImages || []),
-                        ...uploadedImages,
-                    ],
-                };
+                color.productImages = await uploadImagesForColor(color, req.files);
+                return color;
             }));
 
             template.colors = updatedColors;
