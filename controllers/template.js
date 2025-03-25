@@ -87,12 +87,13 @@ const createTemplate = asyncHandler(async (req, res) => {
 });
 
 // Update Template
-const createTemplate = asyncHandler(async (req, res) => {
+const updateTemplate = asyncHandler(async (req, res) => {
+    const {id} = req.params;
     const {
         name,
         type,
         desc,
-        tags = [],
+        tags,
         colors,
         size,
         templateType,
@@ -104,63 +105,65 @@ const createTemplate = asyncHandler(async (req, res) => {
         isPremium
     } = req.body;
 
-    if (!name || !type || !desc || !colors || !size || !templateType || !templateTheme || !orientation) {
-        return res.status(400).json({error: 'All fields are required.'});
+    const template = await Template.findById(id);
+    if (!template) {
+        return res.status(404).json({error: 'Template not found'});
     }
 
-    let parsedColors;
-    try {
-        parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
-        if (!Array.isArray(parsedColors)) throw new Error();
-    } catch (error) {
-        return res.status(400).json({error: 'Invalid color data format.'});
-    }
+    if (name) template.name = name;
+    if (type) template.type = type;
+    if (desc) template.desc = desc;
+    if (tags) template.tags = tags;
+    if (size) template.size = size;
+    if (templateType) template.templateType = templateType;
+    if (templateTheme) template.templateTheme = templateTheme;
+    if (orientation) template.orientation = orientation;
+    if (count !== undefined) template.count = count;
+    if (templatePhoto !== undefined) template.templatePhoto = templatePhoto;
+    if (isFavorite !== undefined) template.isFavorite = isFavorite;
+    if (isPremium !== undefined) template.isPremium = isPremium;
 
-    try {
+    if (colors) {
+        let parsedColors;
+        try {
+            parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
+            if (!Array.isArray(parsedColors)) throw new Error('Invalid color data format.');
+        } catch (error) {
+            return res.status(400).json({error: error.message});
+        }
+
         const files = req.files || [];
 
-        const updatedColors = await Promise.all(parsedColors.map(async (color, index) => {
-            if (!color.color || !color.hex) {
-                throw new Error('Invalid color data.');
-            }
+        try {
+            const updatedColors = await Promise.all(parsedColors.map(async (color, index) => {
+                if (!color.color || !color.hex) {
+                    throw new Error('Invalid color data.');
+                }
 
-            const productImages = files
-                .filter(file => file.fieldname === `productImages[${index}]`)
-                .map(file => file.buffer);
+                const productImages = files
+                    .filter(file => file.fieldname === `productImages[${index}]`)
+                    .map(file => file.buffer);
 
-            const uploadedImages = await uploadFiles(productImages);
+                const uploadedImages = await uploadFiles(productImages);
 
-            return {
-                ...color,
-                productImages: [
-                    ...(color.productImages || []),
-                    ...uploadedImages,
-                ],
-            };
-        }));
+                return {
+                    ...color,
+                    productImages: [
+                        ...(template.colors[index]?.productImages || []),
+                        ...uploadedImages,
+                    ],
+                };
+            }));
 
-        const template = new Template({
-            name,
-            type,
-            desc,
-            tags,
-            colors: updatedColors,
-            size,
-            templateType,
-            templateTheme,
-            orientation,
-            count: count || 0,
-            templatePhoto: templatePhoto || false,
-            isFavorite: isFavorite || false,
-            isPremium: isPremium || false
-        });
-
-        await template.save();
-        res.status(201).json({data: template, message: 'Template created successfully'});
-    } catch (error) {
-        console.error('Error creating template:', error.message);
-        res.status(500).json({error: error.message || 'Failed to create template'});
+            template.colors = updatedColors;
+        } catch (error) {
+            console.error('Error updating color images:', error.message);
+            return res.status(500).json({error: error.message});
+        }
     }
+
+    await template.save();
+    res.status(200).json({data: template, message: 'Template updated successfully'});
 });
 
 // Get All Templates
