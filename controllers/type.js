@@ -36,13 +36,13 @@ const allTypes = asyncHandler(async (req, res) => {
 
 // Get a single type by ID
 const typeById = asyncHandler(async (req, res) => {
-    const {typeID} = req.params;
+    const {id} = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(typeID)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({error: 'Invalid Type ID'});
     }
 
-    const typeData = await Type.findById(typeID)
+    const typeData = await Type.findById(id)
         .populate('category', 'name')
         .populate('subCategory', 'name');
 
@@ -55,10 +55,10 @@ const typeById = asyncHandler(async (req, res) => {
 
 // Update type
 const updateType = asyncHandler(async (req, res) => {
-    const {typeID} = req.params;
+    const {id} = req.params;
     const {name, subcategoryID} = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(typeID)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({error: 'Invalid Type ID'});
     }
 
@@ -67,7 +67,7 @@ const updateType = asyncHandler(async (req, res) => {
     }
 
     const updatedType = await Type.findByIdAndUpdate(
-        typeID,
+        id,
         {name, subCategory: subcategoryID},
         {new: true, runValidators: true}
     ).populate('subCategory', 'name');
@@ -81,13 +81,13 @@ const updateType = asyncHandler(async (req, res) => {
 
 // Delete type
 const deleteType = asyncHandler(async (req, res) => {
-    const {typeID} = req.params;
+    const {id} = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(typeID)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({error: 'Invalid Type ID'});
     }
 
-    const deletedType = await Type.findByIdAndDelete(typeID);
+    const deletedType = await Type.findByIdAndDelete(id);
     if (!deletedType) {
         return res.status(404).json({error: 'Type not found'});
     }
