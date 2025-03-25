@@ -13,10 +13,10 @@ const {
 
 const router = express.Router();
 
-router.post('/', auth, isAdmin, upload.array('product_images'), createTemplate);
+router.post('/', auth, isAdmin, upload.any(), createTemplate);
 router.get('/', allTemplates);
 router.get('/:id', auth, isAdmin, templateById);
-router.put('/:id', auth, isAdmin, upload.array('product_images'), updateTemplate);
+router.put('/:id', auth, isAdmin, upload.any(), updateTemplate);
 router.delete('/:id', auth, isAdmin, deleteTemplate);
 
 module.exports = router;

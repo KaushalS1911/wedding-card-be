@@ -9,15 +9,9 @@ const colorSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    productImages: {
+    templateImages: {
         type: [String],
         required: true,
-        validate: {
-            validator: function (value) {
-                return value.length > 0;
-            },
-            message: 'At least one product image is required for each color.',
-        },
     },
 });
 
