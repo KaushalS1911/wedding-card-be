@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const {LAYOUTS} = require("../constants");
 
 const colorSchema = new mongoose.Schema({
     color: {
@@ -52,7 +53,7 @@ const templateSchema = new mongoose.Schema(
         },
         orientation: {
             type: String,
-            enum: ['portrait', 'landscape', 'square'],
+            enum: [LAYOUTS.PORTRAIT, LAYOUTS.LANDSCAPE, LAYOUTS.SQUARE],
             required: true,
         },
         count: {

@@ -1,4 +1,4 @@
-const ROLES = require("../constants");
+const {ROLES} = require("../constants");
 
 const isAdmin = (req, res, next) => {
     if (!req.user || req.user.role !== ROLES.ADMIN) {

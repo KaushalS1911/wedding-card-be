@@ -4,15 +4,17 @@ const asyncHandler = require('express-async-handler');
 
 // Helper function to upload images
 const uploadImagesForColor = async (color, files) => {
-    if (!files || !files[color.color]) return color.templateImages;
+    if (!files || files.length === 0) return color.templateImages || [];
 
     try {
         const uploadedImages = await Promise.all(
-            files[color.color].map(async (file) => await uploadFile(file.buffer))
+            files.map(async (file) => {
+                return await uploadFile(file.buffer);
+            })
         );
-        return [...color.templateImages, ...uploadedImages];
+        return [...(color.templateImages || []), ...uploadedImages];
     } catch (error) {
-        throw new Error(`Error uploading images for color ${color.color}`);
+        throw new Error(`Error uploading images for color ${color.color}: ${error.message}`);
     }
 };
 
@@ -41,9 +43,9 @@ const createTemplate = asyncHandler(async (req, res) => {
     let parsedColors;
     try {
         parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
-        if (!Array.isArray(parsedColors)) throw new Error();
+        if (!Array.isArray(parsedColors)) throw new Error('Invalid color data format.');
     } catch (error) {
-        return res.status(400).json({error: 'Invalid color data format.'});
+        return res.status(400).json({error: error.message});
     }
 
     try {
@@ -54,12 +56,10 @@ const createTemplate = asyncHandler(async (req, res) => {
                 throw new Error('Invalid color data.');
             }
 
-            const productImages = files
-                .filter(file => file.fieldname === `templateImages[${index}]`)
-                .map(file => file.buffer);
+            const colorFiles = files.filter(file => file.fieldname === `templateImages[${index}]`);
 
-            const uploadedImages = await uploadImagesForColor(productImages);
-            return {...color, productImages: uploadedImages};
+            const uploadedImages = await uploadImagesForColor(color, colorFiles);
+            return {...color, templateImages: uploadedImages};
         }));
 
         const template = new Template({
