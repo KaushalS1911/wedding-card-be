@@ -56,25 +56,36 @@ const blogById = asyncHandler(async (req, res) => {
 
 // Update Blog
 const updateBlog = asyncHandler(async (req, res) => {
-    const {images = [], title, blogCategory, desc, extraData} = req.body;
+    const {title, blogCategory, desc, extraData} = req.body;
 
     const existingBlog = await BlogModel.findById(req.params.id);
     if (!existingBlog) {
         throw new Error("Blog not found");
     }
 
-    const newImages = images.filter(img => typeof img !== "string");
-    const existingImages = images.filter(img => typeof img === "string");
+    let finalImages = existingBlog.images || [];
 
-    const uploadedImages = newImages.length > 0
-        ? await Promise.all(newImages.map(async (file) => await uploadFile(file.buffer)))
-        : [];
+    if (req.body.images && Array.isArray(req.body.images)) {
+        finalImages = req.body.images.filter(img => typeof img === "string");
+    }
 
-    const finalImages = [...existingImages, ...uploadedImages];
+    if (req.files && req.files.length > 0) {
+        const uploadedImages = await Promise.all(req.files.map(async (file) => await uploadFile(file.buffer)));
+        finalImages.push(...uploadedImages);
+    }
+
+    let parsedExtraData = {};
+    if (extraData) {
+        try {
+            parsedExtraData = JSON.parse(extraData);
+        } catch (error) {
+            throw new Error("Invalid JSON format for extraData");
+        }
+    }
 
     const updatedBlog = await BlogModel.findByIdAndUpdate(
         req.params.id,
-        {title, blogCategory, desc, extraData, images: finalImages},
+        {title, blogCategory, desc, extraData: parsedExtraData, images: finalImages},
         {new: true, runValidators: true}
     );
 
