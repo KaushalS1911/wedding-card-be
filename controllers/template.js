@@ -4,13 +4,13 @@ const asyncHandler = require('express-async-handler');
 
 // Helper function to upload images
 const uploadImagesForColor = async (color, files) => {
-    if (!files || !files[color.color]) return color.product_images;
+    if (!files || !files[color.color]) return color.templateImages;
 
     try {
         const uploadedImages = await Promise.all(
             files[color.color].map(async (file) => await uploadFile(file.buffer))
         );
-        return [...color.product_images, ...uploadedImages];
+        return [...color.templateImages, ...uploadedImages];
     } catch (error) {
         throw new Error(`Error uploading images for color ${color.color}`);
     }
