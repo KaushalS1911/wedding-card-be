@@ -3,18 +3,14 @@ const {uploadFile} = require('../services/uploadfile');
 const asyncHandler = require('express-async-handler');
 
 // Helper function to upload images
-const uploadImagesForColor = async (color, files) => {
-    if (!files || files.length === 0) return color.templateImages || [];
+const uploadImageForColor = async (color, file) => {
+    if (!file) return color.templateImages || '';
 
     try {
-        const uploadedImages = await Promise.all(
-            files.map(async (file) => {
-                return await uploadFile(file.buffer);
-            })
-        );
-        return [...(color.templateImages || []), ...uploadedImages];
+        const uploadedImage = await uploadFile(file.buffer);
+        return uploadedImage || color.templateImages || '';
     } catch (error) {
-        throw new Error(`Error uploading images for color ${color.color}: ${error.message}`);
+        throw new Error(`Error uploading image for color ${color.color}: ${error.message}`);
     }
 };
 
@@ -50,16 +46,15 @@ const createTemplate = asyncHandler(async (req, res) => {
 
     try {
         const files = req.files || [];
-
         const updatedColors = await Promise.all(parsedColors.map(async (color, index) => {
             if (!color.color || !color.hex) {
                 throw new Error('Invalid color data.');
             }
 
-            const colorFiles = files.filter(file => file.fieldname === `templateImages[${index}]`);
+            const colorFile = files.find(file => file.fieldname === `templateImages[${index}]`);
+            const uploadedImage = await uploadImageForColor(color, colorFile);
 
-            const uploadedImages = await uploadImagesForColor(color, colorFiles);
-            return {...color, templateImages: uploadedImages};
+            return {...color, templateImages: uploadedImage};
         }));
 
         const template = new Template({
@@ -94,7 +89,6 @@ const updateTemplate = asyncHandler(async (req, res) => {
         type,
         desc,
         tags,
-        colors,
         size,
         templateType,
         templateTheme,
@@ -110,42 +104,37 @@ const updateTemplate = asyncHandler(async (req, res) => {
         return res.status(404).json({error: 'Template not found'});
     }
 
-    if (name) template.name = name;
-    if (type) template.type = type;
-    if (desc) template.desc = desc;
-    if (tags) template.tags = tags;
-    if (size) template.size = size;
-    if (templateType) template.templateType = templateType;
-    if (templateTheme) template.templateTheme = templateTheme;
-    if (orientation) template.orientation = orientation;
-    if (count !== undefined) template.count = count;
-    if (templatePhoto !== undefined) template.templatePhoto = templatePhoto;
-    if (isFavorite !== undefined) template.isFavorite = isFavorite;
-    if (isPremium !== undefined) template.isPremium = isPremium;
+    Object.assign(template, {
+        name,
+        type,
+        desc,
+        tags,
+        size,
+        templateType,
+        templateTheme,
+        orientation,
+        count,
+        templatePhoto,
+        isFavorite,
+        isPremium
+    });
 
-    if (colors) {
-        let parsedColors;
-        try {
-            parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
-            if (!Array.isArray(parsedColors)) throw new Error('Invalid color data format.');
-        } catch (error) {
-            return res.status(400).json({error: error.message});
-        }
+    try {
+        const files = req.files || [];
+        if (files.length > 0) {
+            const updatedColors = await Promise.all(template.colors.map(async (color, index) => {
+                const colorFile = files.find(file => file.fieldname === `templateImages[${index}]`);
 
-        try {
-            const updatedColors = await Promise.all(parsedColors.map(async (color) => {
-                if (!color.color || !color.hex) {
-                    throw new Error('Invalid color data.');
-                }
-                color.productImages = await uploadImagesForColor(color, req.files);
-                return color;
+                const uploadedImage = colorFile ? await uploadImageForColor(color, colorFile) : color.templateImages;
+
+                return {...color, templateImages: uploadedImage};
             }));
 
             template.colors = updatedColors;
-        } catch (error) {
-            console.error('Error updating color images:', error.message);
-            return res.status(500).json({error: error.message});
         }
+    } catch (error) {
+        console.error('Error updating color images:', error.message);
+        return res.status(500).json({error: error.message});
     }
 
     await template.save();

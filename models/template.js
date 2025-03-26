@@ -11,7 +11,7 @@ const colorSchema = new mongoose.Schema({
         required: true,
     },
     templateImages: {
-        type: [String],
+        type: String,
         required: true,
     },
 });
