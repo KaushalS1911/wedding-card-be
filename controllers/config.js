@@ -35,4 +35,8 @@ const createConfig = asyncHandler(async (req, res) => {
     res.status(201).json({data: newConfig, message: 'Config created successfully'});
 });
 
-module.exports = {getConfig, updateConfig, createConfig};
+module.exports = {
+    getConfig,
+    updateConfig,
+    createConfig
+};
