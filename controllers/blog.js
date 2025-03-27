@@ -7,11 +7,11 @@ const createBlog = asyncHandler(async (req, res) => {
     const {title, blogCategory, desc, extraData} = req.body;
 
     if (!title || !blogCategory || !desc) {
-        throw new Error("Title, Blog Category, and Description are required.");
+        return res.status(400).json({success: false, message: "Title, Blog Category, and Description are required."});
     }
 
     if (await BlogModel.exists({title})) {
-        throw new Error("Blog with this title already exists");
+        return res.status(400).json({success: false, message: "Blog with this title already exists."});
     }
 
     let uploadedImages = [];
@@ -24,7 +24,7 @@ const createBlog = asyncHandler(async (req, res) => {
         try {
             parsedExtraData = JSON.parse(extraData);
         } catch (error) {
-            throw new Error("Invalid JSON format for extraData");
+            return res.status(400).json({success: false, message: "Invalid JSON format for extraData."});
         }
     }
 
@@ -36,22 +36,22 @@ const createBlog = asyncHandler(async (req, res) => {
         images: uploadedImages,
     });
 
-    res.status(201).json({data: newBlog, message: "Blog created successfully"});
+    res.status(201).json({success: true, data: newBlog, message: "Blog created successfully."});
 });
 
 // Get All Blogs
 const allBlogs = asyncHandler(async (req, res) => {
     const blogs = await BlogModel.find();
-    res.status(200).json({data: blogs});
+    res.status(200).json({success: true, data: blogs});
 });
 
 // Get Single Blog
 const blogById = asyncHandler(async (req, res) => {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
-        throw new Error("Blog not found");
+        return res.status(404).json({success: false, message: "Blog not found."});
     }
-    res.status(200).json({data: blog});
+    res.status(200).json({success: true, data: blog});
 });
 
 // Update Blog
@@ -60,13 +60,13 @@ const updateBlog = asyncHandler(async (req, res) => {
 
     const existingBlog = await BlogModel.findById(req.params.id);
     if (!existingBlog) {
-        throw new Error("Blog not found");
+        return res.status(404).json({success: false, message: "Blog not found."});
     }
 
     let finalImages = existingBlog.images || [];
 
     if (req.body.images && Array.isArray(req.body.images)) {
-        finalImages = req.body.images.filter(img => typeof img === "string");
+        finalImages = req.body.images.filter((img) => typeof img === "string");
     }
 
     if (req.files && req.files.length > 0) {
@@ -79,7 +79,7 @@ const updateBlog = asyncHandler(async (req, res) => {
         try {
             parsedExtraData = JSON.parse(extraData);
         } catch (error) {
-            throw new Error("Invalid JSON format for extraData");
+            return res.status(400).json({success: false, message: "Invalid JSON format for extraData."});
         }
     }
 
@@ -89,16 +89,16 @@ const updateBlog = asyncHandler(async (req, res) => {
         {new: true, runValidators: true}
     );
 
-    res.status(200).json({data: updatedBlog, message: "Blog updated successfully"});
+    res.status(200).json({success: true, data: updatedBlog, message: "Blog updated successfully."});
 });
 
 // Delete Blog
 const deleteBlog = asyncHandler(async (req, res) => {
     const deletedBlog = await BlogModel.findByIdAndDelete(req.params.id);
     if (!deletedBlog) {
-        throw new Error("Blog not found");
+        return res.status(404).json({success: false, message: "Blog not found."});
     }
-    res.status(200).json({message: "Blog deleted successfully"});
+    res.status(200).json({success: true, message: "Blog deleted successfully."});
 });
 
 module.exports = {
@@ -106,5 +106,5 @@ module.exports = {
     allBlogs,
     blogById,
     updateBlog,
-    deleteBlog
+    deleteBlog,
 };

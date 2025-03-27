@@ -5,22 +5,22 @@ const PremiumModel = require("../models/premium");
 const createPremium = asyncHandler(async (req, res) => {
     const {userId, startDate, endDate, isActive} = req.body;
 
-    const premiumExist = await PremiumModel.exists({userId});
-    if (premiumExist) throw new Error("User already has a premium subscription");
+    if (await PremiumModel.exists({userId})) {
+        return res.status(400).json({success: false, message: "User already has a premium subscription"});
+    }
 
     if (new Date(endDate) <= new Date(startDate)) {
-        throw new Error("End date must be greater than start date");
+        return res.status(400).json({success: false, message: "End date must be greater than start date"});
     }
 
     const newPremium = await PremiumModel.create({userId, startDate, endDate, isActive});
-
-    res.status(201).json({data: newPremium, message: "Premium subscription created successfully"});
+    res.status(201).json({success: true, data: newPremium, message: "Premium subscription created successfully"});
 });
 
 // Get all premium subscriptions
 const allPremiums = asyncHandler(async (req, res) => {
     const premiums = await PremiumModel.find().populate('userId', 'firstName lastName email');
-    res.status(200).json({data: premiums});
+    res.status(200).json({success: true, data: premiums});
 });
 
 // Get a single premium subscription by ID
@@ -28,9 +28,11 @@ const premiumById = asyncHandler(async (req, res) => {
     const {id} = req.params;
     const premium = await PremiumModel.findById(id).populate('userId', 'firstName lastName email');
 
-    if (!premium) throw new Error("Premium subscription not found");
+    if (!premium) {
+        return res.status(404).json({success: false, message: "Premium subscription not found"});
+    }
 
-    res.status(200).json({data: premium});
+    res.status(200).json({success: true, data: premium});
 });
 
 // Update premium subscription
@@ -38,9 +40,11 @@ const updatePremium = asyncHandler(async (req, res) => {
     const {id} = req.params;
     const updatedPremium = await PremiumModel.findByIdAndUpdate(id, req.body, {new: true});
 
-    if (!updatedPremium) throw new Error("Failed to update premium subscription");
+    if (!updatedPremium) {
+        return res.status(400).json({success: false, message: "Failed to update premium subscription"});
+    }
 
-    res.status(200).json({data: updatedPremium, message: "Premium subscription updated successfully"});
+    res.status(200).json({success: true, data: updatedPremium, message: "Premium subscription updated successfully"});
 });
 
 // Delete premium subscription
@@ -48,9 +52,11 @@ const deletePremium = asyncHandler(async (req, res) => {
     const {id} = req.params;
     const deletedPremium = await PremiumModel.findByIdAndDelete(id);
 
-    if (!deletedPremium) throw new Error("Failed to delete premium subscription");
+    if (!deletedPremium) {
+        return res.status(400).json({success: false, message: "Failed to delete premium subscription"});
+    }
 
-    res.status(200).json({message: "Premium subscription deleted successfully"});
+    res.status(200).json({success: true, message: "Premium subscription deleted successfully"});
 });
 
 // Send reminder for expiring subscriptions
@@ -64,15 +70,15 @@ const sendReminder = asyncHandler(async (req, res) => {
         isActive: true,
     }).populate('userId', 'email firstName lastName');
 
-    if (expiringPremiums.length === 0) {
-        return res.status(200).json({message: "No subscriptions expiring within 7 days."});
+    if (!expiringPremiums.length) {
+        return res.status(200).json({success: true, message: "No subscriptions expiring within 7 days."});
     }
 
     expiringPremiums.forEach((subscription) => {
         console.log(`Reminder sent to ${subscription.userId.email} for subscription expiring on ${subscription.endDate}`);
     });
 
-    res.status(200).json({message: "Reminders sent successfully", data: expiringPremiums});
+    res.status(200).json({success: true, message: "Reminders sent successfully", data: expiringPremiums});
 });
 
 module.exports = {

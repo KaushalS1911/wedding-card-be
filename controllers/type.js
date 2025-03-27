@@ -10,37 +10,40 @@ const createType = asyncHandler(async (req, res) => {
     const {categoryID, subcategoryID} = req.params;
 
     if (!name) {
-        return res.status(400).json({error: 'Type name is required'});
+        return res.status(400).json({success: false, error: 'Type name is required'});
     }
 
-    if (!mongoose.Types.ObjectId.isValid(categoryID) || !mongoose.Types.ObjectId.isValid(subcategoryID)) {
-        return res.status(400).json({error: 'Invalid Category or Subcategory ID'});
+    if (!mongoose.isValidObjectId(categoryID) || !mongoose.isValidObjectId(subcategoryID)) {
+        return res.status(400).json({success: false, error: 'Invalid Category or Subcategory ID'});
     }
 
     const typeExist = await Type.exists({name, category: categoryID, subCategory: subcategoryID});
     if (typeExist) {
-        return res.status(400).json({error: 'Type with this name already exists'});
+        return res.status(400).json({success: false, error: 'Type with this name already exists'});
     }
 
     const newType = await Type.create({name, category: categoryID, subCategory: subcategoryID});
-    res.status(201).json({data: newType, message: 'Type created successfully'});
+    res.status(201).json({success: true, data: newType, message: 'Type created successfully'});
 });
 
 // Get all types with category and subcategory populated
 const allTypes = asyncHandler(async (req, res) => {
     const {subcategoryID} = req.params;
 
-    const types = await Type.find({subCategory: subcategoryID})
-        .populate('subCategory', 'name');
-    res.status(200).json({data: types});
+    if (!mongoose.isValidObjectId(subcategoryID)) {
+        return res.status(400).json({success: false, error: 'Invalid Subcategory ID'});
+    }
+
+    const types = await Type.find({subCategory: subcategoryID}).populate('subCategory', 'name');
+    res.status(200).json({success: true, data: types});
 });
 
 // Get a single type by ID
 const typeById = asyncHandler(async (req, res) => {
     const {id} = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({error: 'Invalid Type ID'});
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({success: false, error: 'Invalid Type ID'});
     }
 
     const typeData = await Type.findById(id)
@@ -48,10 +51,10 @@ const typeById = asyncHandler(async (req, res) => {
         .populate('subCategory', 'name');
 
     if (!typeData) {
-        return res.status(404).json({error: 'Type not found'});
+        return res.status(404).json({success: false, error: 'Type not found'});
     }
 
-    res.status(200).json({data: typeData});
+    res.status(200).json({success: true, data: typeData});
 });
 
 // Update type
@@ -59,12 +62,12 @@ const updateType = asyncHandler(async (req, res) => {
     const {id} = req.params;
     const {name, subcategoryID} = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({error: 'Invalid Type ID'});
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({success: false, error: 'Invalid Type ID'});
     }
 
-    if (subcategoryID && !mongoose.Types.ObjectId.isValid(subcategoryID)) {
-        return res.status(400).json({error: 'Invalid Category or Subcategory ID'});
+    if (subcategoryID && !mongoose.isValidObjectId(subcategoryID)) {
+        return res.status(400).json({success: false, error: 'Invalid Subcategory ID'});
     }
 
     const updatedType = await Type.findByIdAndUpdate(
@@ -74,28 +77,28 @@ const updateType = asyncHandler(async (req, res) => {
     ).populate('subCategory', 'name');
 
     if (!updatedType) {
-        return res.status(404).json({error: 'Type not found'});
+        return res.status(404).json({success: false, error: 'Type not found'});
     }
 
-    res.status(200).json({data: updatedType, message: 'Type updated successfully'});
+    res.status(200).json({success: true, data: updatedType, message: 'Type updated successfully'});
 });
 
 // Delete type
 const deleteType = asyncHandler(async (req, res) => {
     const {id} = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({error: 'Invalid Type ID'});
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({success: false, error: 'Invalid Type ID'});
     }
 
     await Template.deleteMany({type: id});
 
     const deletedType = await Type.findByIdAndDelete(id);
     if (!deletedType) {
-        return res.status(404).json({error: 'Type not found'});
+        return res.status(404).json({success: false, error: 'Type not found'});
     }
 
-    res.status(200).json({message: 'Type and all related templates deleted successfully'});
+    res.status(200).json({success: true, message: 'Type and all related templates deleted successfully'});
 });
 
 // Get all categories with their subcategories and types
@@ -149,17 +152,17 @@ const getAllCategoriesWithSubcategoriesAndTypes = asyncHandler(async (req, res) 
             }
         ]);
 
-        res.status(200).json(categories);
+        res.status(200).json({success: true, data: categories});
     } catch (error) {
         console.error('Error fetching categories with subcategories and types:', error);
-        res.status(500).json({message: 'Internal server error'});
+        res.status(500).json({success: false, error: 'Internal server error'});
     }
 });
 
 // Get all types with subcategory populated
 const AllType = asyncHandler(async (req, res) => {
-    const types = await Type.find().populate('subCategory', 'na me');
-    res.status(200).json({data: types});
+    const types = await Type.find().populate('subCategory', 'name');
+    res.status(200).json({success: true, data: types});
 });
 
 module.exports = {

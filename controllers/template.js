@@ -33,7 +33,7 @@ const createTemplate = asyncHandler(async (req, res) => {
     } = req.body;
 
     if (!name || !type || !desc || !colors || !size || !templateType || !templateTheme || !orientation) {
-        return res.status(400).json({error: 'All fields are required.'});
+        return res.status(400).json({success: false, error: 'All fields are required.'});
     }
 
     let parsedColors;
@@ -41,7 +41,7 @@ const createTemplate = asyncHandler(async (req, res) => {
         parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
         if (!Array.isArray(parsedColors)) throw new Error('Invalid color data format.');
     } catch (error) {
-        return res.status(400).json({error: error.message});
+        return res.status(400).json({success: false, error: error.message});
     }
 
     try {
@@ -74,10 +74,10 @@ const createTemplate = asyncHandler(async (req, res) => {
         });
 
         await template.save();
-        res.status(201).json({data: template, message: 'Template created successfully'});
+        res.status(201).json({success: true, data: template, message: 'Template created successfully'});
     } catch (error) {
         console.error('Error creating template:', error.message);
-        res.status(500).json({error: error.message || 'Failed to create template'});
+        res.status(500).json({success: false, error: error.message || 'Failed to create template'});
     }
 });
 
@@ -101,7 +101,7 @@ const updateTemplate = asyncHandler(async (req, res) => {
 
     const template = await Template.findById(id);
     if (!template) {
-        return res.status(404).json({error: 'Template not found'});
+        return res.status(404).json({success: false, error: 'Template not found'});
     }
 
     Object.assign(template, {
@@ -134,11 +134,11 @@ const updateTemplate = asyncHandler(async (req, res) => {
         }
     } catch (error) {
         console.error('Error updating color images:', error.message);
-        return res.status(500).json({error: error.message});
+        return res.status(500).json({success: false, error: error.message});
     }
 
     await template.save();
-    res.status(200).json({data: template, message: 'Template updated successfully'});
+    res.status(200).json({success: true, data: template, message: 'Template updated successfully'});
 });
 
 // Get All Templates
@@ -181,9 +181,9 @@ const allTemplates = asyncHandler(async (req, res) => {
             .populate('type', 'name')
             .sort(sortOptions);
 
-        res.status(200).json({data: templates});
+        res.status(200).json({success: true, data: templates});
     } catch (error) {
-        res.status(500).json({message: error.message});
+        res.status(500).json({success: false, error: error.message});
     }
 });
 
@@ -192,15 +192,15 @@ const templateById = asyncHandler(async (req, res) => {
     const template = await Template.findById(req.params.id)
         .populate('type', 'name');
 
-    if (!template) return res.status(404).json({error: 'Template not found'});
-    res.status(200).json({data: template});
+    if (!template) return res.status(404).json({success: false, error: 'Template not found'});
+    res.status(200).json({success: true, data: template});
 });
 
 // Delete Template
 const deleteTemplate = asyncHandler(async (req, res) => {
     const template = await Template.findByIdAndDelete(req.params.id);
-    if (!template) return res.status(404).json({error: 'Template not found'});
-    res.status(200).json({message: 'Template deleted successfully'});
+    if (!template) return res.status(404).json({success: false, error: 'Template not found'});
+    res.status(200).json({success: true, message: 'Template deleted successfully'});
 });
 
 module.exports = {createTemplate, updateTemplate, allTemplates, templateById, deleteTemplate};
