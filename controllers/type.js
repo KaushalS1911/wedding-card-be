@@ -114,40 +114,73 @@ const getAllCategoriesWithSubcategoriesAndTypes = asyncHandler(async (req, res) 
                 }
             },
             {
-                $unwind: {
-                    path: '$categories',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
                 $lookup: {
                     from: 'subcategories',
                     localField: 'categories._id',
                     foreignField: 'category',
-                    as: 'categories.subcategories'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$categories.subcategories',
-                    preserveNullAndEmptyArrays: true
+                    as: 'subcategories'
                 }
             },
             {
                 $lookup: {
                     from: 'types',
-                    localField: 'categories.subcategories._id',
+                    localField: 'subcategories._id',
                     foreignField: 'subCategory',
-                    as: 'categories.subcategories.types'
+                    as: 'types'
                 }
             },
             {
-                $group: {
-                    _id: '$_id',
-                    name: {$first: '$name'},
-                    categories: {
-                        $push: '$categories'
+                $addFields: {
+                    subcategories: {
+                        $map: {
+                            input: "$subcategories",
+                            as: "subcat",
+                            in: {
+                                $mergeObjects: [
+                                    "$$subcat",
+                                    {
+                                        types: {
+                                            $filter: {
+                                                input: "$types",
+                                                as: "type",
+                                                cond: {$eq: ["$$type.subCategory", "$$subcat._id"]}
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
                     }
+                }
+            },
+            {
+                $addFields: {
+                    categories: {
+                        $map: {
+                            input: "$categories",
+                            as: "cat",
+                            in: {
+                                $mergeObjects: [
+                                    "$$cat",
+                                    {
+                                        subcategories: {
+                                            $filter: {
+                                                input: "$subcategories",
+                                                as: "sub",
+                                                cond: {$eq: ["$$sub.category", "$$cat._id"]}
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    subcategories: 0,
+                    types: 0
                 }
             }
         ]);

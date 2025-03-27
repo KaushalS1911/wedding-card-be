@@ -32,7 +32,6 @@ const {
     deleteParentCategory,
     allParentCategories,
     parentCategoryById,
-    AllParentCategory
 } = require("../controllers/parent-category");
 
 const router = express.Router();
@@ -41,7 +40,7 @@ const router = express.Router();
 router.get('/category/all', getAllCategoriesWithSubcategoriesAndTypes);
 
 // Get all category
-router.get('/all/parent-category', AllParentCategory);
+router.get('/all/parent-category', allParentCategories);
 router.get('/all/category', AllCategory);
 router.get('/all/sub-category', AllSubcategory);
 router.get('/all/type', AllType);

@@ -101,17 +101,10 @@ const deleteParentCategory = asyncHandler(async (req, res) => {
     res.status(200).json({message: 'Parent Category and all related data deleted successfully'});
 });
 
-// Get all categories with optional parent category population
-const AllParentCategory = asyncHandler(async (req, res) => {
-    const categories = await ParentCategory.find().populate('parentCategory');
-    res.status(200).json({success: true, data: categories});
-});
-
 module.exports = {
     createParentCategory,
     allParentCategories,
     parentCategoryById,
     updateParentCategory,
     deleteParentCategory,
-    AllParentCategory
 };
