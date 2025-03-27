@@ -5,34 +5,41 @@ const asyncHandler = require('express-async-handler');
 const getConfig = asyncHandler(async (req, res) => {
     const config = await Config.findOne();
     if (!config) {
-        return res.status(404).json({error: 'Config not found'});
+        return res.status(404).json({ success: false, error: 'Config not found' });
     }
-    res.status(200).json({data: config});
+    res.status(200).json({ success: true, data: config });
 });
 
 // Update Config - Create if not exists, otherwise update
 const updateConfig = asyncHandler(async (req, res) => {
-    const {id} = req.params;
     const updateData = req.body;
 
-    const config = await Config.findByIdAndUpdate(id, updateData, {
-        new: true,
-        runValidators: true
-    });
+    let config = await Config.findOne();
 
-    if (!config) {
-        return res.status(404).json({error: 'Config not found'});
+    if (config) {
+        config = await Config.findByIdAndUpdate(config._id, updateData, {
+            new: true,
+            runValidators: true
+        });
+        return res.status(200).json({ success: true, data: config, message: 'Config updated successfully' });
+    } else {
+        const newConfig = new Config(updateData);
+        await newConfig.save();
+        return res.status(201).json({ success: true, data: newConfig, message: 'Config created successfully' });
     }
-
-    res.status(200).json({data: config, message: 'Config updated successfully'});
 });
 
-// Create Config
+// Create Config - Prevent multiple configs
 const createConfig = asyncHandler(async (req, res) => {
+    const existingConfig = await Config.findOne();
+    if (existingConfig) {
+        return res.status(400).json({ success: false, error: 'Config already exists. Please update the existing config.' });
+    }
+
     const configData = req.body;
     const newConfig = new Config(configData);
     await newConfig.save();
-    res.status(201).json({data: newConfig, message: 'Config created successfully'});
+    res.status(201).json({ success: true, data: newConfig, message: 'Config created successfully' });
 });
 
 module.exports = {

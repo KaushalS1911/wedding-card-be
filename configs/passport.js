@@ -1,7 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/user');
-const ROLES = require("../constants");
+const {ROLES} = require("../constants");
 require("dotenv").config();
 
 passport.use(new GoogleStrategy({
@@ -17,7 +17,7 @@ passport.use(new GoogleStrategy({
                 firstName: profile.name?.givenName || "",
                 lastName: profile.name?.familyName || "",
                 email: profile.emails[0].value,
-                password: 12345678,
+                password: null,
                 role: ROLES.USER,
                 isPremium: false,
             });

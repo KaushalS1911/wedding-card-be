@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
-const Category = require('../models/category');
 const ParentCategory = require('../models/parent-category');
+const Category = require('../models/category');
+const Subcategory = require('../models/sub-category');
+const Type = require('../models/type');
+const Template = require('../models/template');
 
 // Create Category
 const createCategory = asyncHandler(async (req, res) => {
@@ -89,11 +92,23 @@ const deleteCategory = asyncHandler(async (req, res) => {
         return res.status(400).json({error: 'Invalid Category ID'});
     }
 
-    const category = await Category.findByIdAndDelete(id);
-    if (!category) {
+    const subCategories = await Subcategory.find({category: id});
+    const subCategoryIds = subCategories.map(sub => sub._id);
+
+    const types = await Type.find({subCategory: {$in: subCategoryIds}});
+    const typeIds = types.map(type => type._id);
+
+    await Template.deleteMany({type: {$in: typeIds}});
+
+    await Type.deleteMany({_id: {$in: typeIds}});
+    await Subcategory.deleteMany({_id: {$in: subCategoryIds}});
+
+    const deletedCategory = await Category.findByIdAndDelete(id);
+    if (!deletedCategory) {
         return res.status(404).json({error: 'Category not found'});
     }
-    res.status(200).json({message: 'Category deleted successfully'});
+
+    res.status(200).json({message: 'Category and all related data deleted successfully'});
 });
 
 // Get all parent categories

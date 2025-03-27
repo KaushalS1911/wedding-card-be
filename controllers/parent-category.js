@@ -4,6 +4,7 @@ const ParentCategory = require('../models/parent-category');
 const Category = require('../models/category');
 const Subcategory = require('../models/sub-category');
 const Type = require('../models/type');
+const Template = require('../models/template');
 
 // Create a new parent category
 const createParentCategory = asyncHandler(async (req, res) => {
@@ -62,7 +63,7 @@ const updateParentCategory = asyncHandler(async (req, res) => {
     res.status(200).json({data: updatedCategory, message: 'Parent Category updated successfully'});
 });
 
-// Delete a parent category
+// Delete a parent category and all related data
 const deleteParentCategory = asyncHandler(async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).json({error: 'Invalid category ID'});
@@ -71,15 +72,20 @@ const deleteParentCategory = asyncHandler(async (req, res) => {
     const categories = await Category.find({parentCategory: req.params.id});
 
     const subCategoryIds = [];
+    const typeIds = [];
+
     for (const category of categories) {
         const subCategories = await Subcategory.find({category: category._id});
         subCategoryIds.push(...subCategories.map(sub => sub._id));
+
+        const types = await Type.find({subCategory: {$in: subCategoryIds}});
+        typeIds.push(...types.map(type => type._id));
     }
 
-    await Type.deleteMany({subCategory: {$in: subCategoryIds}});
+    await Template.deleteMany({type: {$in: typeIds}});
 
+    await Type.deleteMany({_id: {$in: typeIds}});
     await Subcategory.deleteMany({_id: {$in: subCategoryIds}});
-
     await Category.deleteMany({parentCategory: req.params.id});
 
     const deletedCategory = await ParentCategory.findByIdAndDelete(req.params.id);

@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const Subcategory = require('../models/sub-category');
 const Category = require('../models/category');
+const Type = require('../models/type');
+const Template = require('../models/template');
 
 // Create a new subcategory
 const createSubcategory = asyncHandler(async (req, res) => {
@@ -98,11 +100,19 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
         return res.status(400).json({error: 'Invalid Subcategory ID'});
     }
 
-    const subcategoryData = await Subcategory.findByIdAndDelete(subcategory);
-    if (!subcategoryData) {
+    const types = await Type.find({subCategory: subcategory});
+    const typeIds = types.map(type => type._id);
+
+    await Template.deleteMany({type: {$in: typeIds}});
+
+    await Type.deleteMany({_id: {$in: typeIds}});
+
+    const deletedSubcategory = await Subcategory.findByIdAndDelete(subcategory);
+    if (!deletedSubcategory) {
         return res.status(404).json({error: 'Subcategory not found'});
     }
-    res.status(200).json({message: 'Subcategory deleted successfully'});
+
+    res.status(200).json({message: 'Subcategory and all related data deleted successfully'});
 });
 
 // Get all subcategories with category population

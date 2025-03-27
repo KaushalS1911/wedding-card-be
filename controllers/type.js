@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const ParentCategory = require('../models/parent-category');
 const Type = require('../models/type');
+const Template = require('../models/template');
 
 // Create a new type
 const createType = asyncHandler(async (req, res) => {
@@ -87,12 +88,14 @@ const deleteType = asyncHandler(async (req, res) => {
         return res.status(400).json({error: 'Invalid Type ID'});
     }
 
+    await Template.deleteMany({type: id});
+
     const deletedType = await Type.findByIdAndDelete(id);
     if (!deletedType) {
         return res.status(404).json({error: 'Type not found'});
     }
 
-    res.status(200).json({message: 'Type deleted successfully'});
+    res.status(200).json({message: 'Type and all related templates deleted successfully'});
 });
 
 // Get all categories with their subcategories and types
@@ -155,7 +158,7 @@ const getAllCategoriesWithSubcategoriesAndTypes = asyncHandler(async (req, res) 
 
 // Get all types with subcategory populated
 const AllType = asyncHandler(async (req, res) => {
-    const types = await Type.find().populate('subCategory', 'name');
+    const types = await Type.find().populate('subCategory', 'na me');
     res.status(200).json({data: types});
 });
 
