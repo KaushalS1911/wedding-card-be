@@ -15,7 +15,7 @@ const {
 const router = express.Router();
 
 router.post('/', auth, isAdmin, upload.any(), createTemplate);
-router.get('/', checkPremium, allTemplates);
+router.get('/', allTemplates);
 router.get('/:id', auth, isAdmin, templateById);
 router.put('/:id', auth, isAdmin, upload.any(), updateTemplate);
 router.delete('/:id', auth, isAdmin, deleteTemplate);
