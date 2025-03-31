@@ -89,6 +89,7 @@ const updateTemplate = asyncHandler(async (req, res) => {
         type,
         desc,
         tags,
+        colors,
         size,
         templateType,
         templateTheme,
@@ -104,41 +105,49 @@ const updateTemplate = asyncHandler(async (req, res) => {
         return res.status(404).json({success: false, error: 'Template not found'});
     }
 
-    Object.assign(template, {
-        name,
-        type,
-        desc,
-        tags,
-        size,
-        templateType,
-        templateTheme,
-        orientation,
-        count,
-        templatePhoto,
-        isFavorite,
-        isPremium
-    });
+    let parsedColors;
+    try {
+        parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
+        if (!Array.isArray(parsedColors)) throw new Error('Invalid color data format.');
+    } catch (error) {
+        return res.status(400).json({success: false, error: error.message});
+    }
 
     try {
         const files = req.files || [];
-        if (files.length > 0) {
-            const updatedColors = await Promise.all(template.colors.map(async (color, index) => {
-                const colorFile = files.find(file => file.fieldname === `templateImages[${index}]`);
+        const updatedColors = await Promise.all(parsedColors.map(async (color, index) => {
+            if (!color.color || !color.hex) {
+                throw new Error('Invalid color data.');
+            }
 
-                const uploadedImage = colorFile ? await uploadImageForColor(color, colorFile) : color.templateImages;
+            const colorFile = files.find(file => file.fieldname === `templateImages[${index}]`);
+            const uploadedImage = await uploadImageForColor(color, colorFile);
 
-                return {...color, templateImages: uploadedImage};
-            }));
+            return {...color, templateImages: uploadedImage};
+        }));
 
-            template.colors = updatedColors;
-        }
+        Object.assign(template, {
+            name,
+            type,
+            desc,
+            tags,
+            colors: updatedColors,
+            size,
+            templateType,
+            templateTheme,
+            orientation,
+            count,
+            templatePhoto,
+            isFavorite,
+            isPremium
+        });
+
+        await template.save();
+        res.status(200).json({success: true, data: template, message: 'Template updated successfully'});
     } catch (error) {
-        console.error('Error updating color images:', error.message);
-        return res.status(500).json({success: false, error: error.message});
+        console.error('Error updating template:', error.message);
+        res.status(500).json({success: false, error: error.message || 'Failed to update template'});
     }
-
-    await template.save();
-    res.status(200).json({success: true, data: template, message: 'Template updated successfully'});
 });
 
 // Get All Templates
