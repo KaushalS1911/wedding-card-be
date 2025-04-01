@@ -216,4 +216,52 @@ const deleteTemplate = asyncHandler(async (req, res) => {
     res.status(200).json({success: true, message: 'Template deleted successfully'});
 });
 
-module.exports = {createTemplate, updateTemplate, allTemplates, templateById, deleteTemplate};
+// Get All Templates with Specific Attributes
+const handleGetTemplateAttributes = asyncHandler(async (req, res) => {
+    console.log("check")
+    try {
+        const colors = await Template.aggregate([
+            {$unwind: "$colors"},
+            {
+                $group: {
+                    _id: "$colors.color",
+                    hex: {$first: "$colors.hex"}
+                }
+            },
+            {$project: {_id: 0, color: "$_id", hex: 1}}
+        ]);
+
+        const templateThemes = await Template.distinct('templateTheme');
+
+        const tags = await Template.aggregate([
+            {$unwind: "$tags"},
+            {$group: {_id: "$tags"}},
+            {$project: {_id: 0, tag: "$_id"}}
+        ]);
+
+        res.status(200).json({
+            success: true,
+            message: 'Template attributes fetched successfully',
+            data: {
+                colors: colors,
+                templateThemes: templateThemes,
+                tags: tags
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching template attributes:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch template attributes"
+        });
+    }
+});
+
+module.exports = {
+    createTemplate,
+    updateTemplate,
+    allTemplates,
+    templateById,
+    deleteTemplate,
+    handleGetTemplateAttributes
+};

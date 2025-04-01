@@ -9,13 +9,15 @@ const {
     allTemplates,
     templateById,
     updateTemplate,
-    deleteTemplate
+    deleteTemplate,
+    handleGetTemplateAttributes
 } = require('../controllers/template');
 
 const router = express.Router();
 
 router.post('/', auth, isAdmin, upload.any(), createTemplate);
 router.get('/', allTemplates);
+router.get('/attributes', handleGetTemplateAttributes);
 router.get('/:id', templateById);
 router.put('/:id', auth, isAdmin, upload.any(), updateTemplate);
 router.delete('/:id', auth, isAdmin, deleteTemplate);
