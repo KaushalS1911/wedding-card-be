@@ -16,11 +16,6 @@ const register = asyncHandler(async (req, res) => {
 
         const newUser = await UserModel.create({...req.body, role});
 
-        if (role === ROLES.ADMIN) {
-            const newConfig = new Config({company_details: {userId: newUser._id}});
-            await newConfig.save();
-        }
-
         res.status(201).json({success: true, data: newUser, message: 'Registered successfully'});
     } catch (error) {
         res.status(500).json({success: false, message: 'Registration failed', error: error.message});
