@@ -153,9 +153,13 @@ const updateTemplate = asyncHandler(async (req, res) => {
 // Get All Templates
 const allTemplates = asyncHandler(async (req, res) => {
     try {
-        const {templateTheme, isPremium, color, templatePhoto, orientation, isFavorite, sortBy} = req.query;
+        const {templateTheme, isPremium, color, templatePhoto, orientation, isFavorite, sortBy, type} = req.query;
 
         let filter = {};
+
+        if (type) {
+            filter.type = type;
+        }
 
         if (templateTheme) {
             filter.templateTheme = templateTheme;
