@@ -7,7 +7,8 @@ const passport = require('passport');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 
-require("./configs/passport");
+require("./configs/passport-google");
+require("./configs/passport-facebook");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -17,7 +18,7 @@ connectionDB();
 
 // CORS Middleware
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "https://weddingcard-steel.vercel.app",
     credentials: true
 }));
 
@@ -65,7 +66,6 @@ app.use((req, res) => {
 
 // Error Handler
 app.use(exceptionHandler);
-
 
 // Start Server
 app.listen(PORT, () => {
