@@ -37,7 +37,7 @@ router.get('/facebook', passport.authenticate('facebook', {scope: ['email']}));
 router.get('/facebook/callback',
     passport.authenticate('facebook', {failureRedirect: '/api/auth/facebook/failure'}),
     (req, res) => {
-        res.redirect("http://localhost:5173/dashboard");
+        res.redirect("https://weddingcard-steel.vercel.app");
     }
 );
 
@@ -54,7 +54,7 @@ router.get('/facebook/failure', (req, res) => {
 // 🔹 Logout Route
 router.get('/logout', (req, res) => {
     req.logout(() => {
-        res.redirect("http://localhost:5173");
+        res.redirect("https://weddingcard-steel.vercel.app");
     });
 });
 
