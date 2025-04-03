@@ -1,6 +1,6 @@
 const passportGoogle = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User');
+const User = require('../models/user');
 const {ROLES} = require("../constants");
 const {generateToken} = require("../auth/jwt");
 require("dotenv").config();
