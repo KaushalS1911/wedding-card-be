@@ -17,10 +17,7 @@ const PORT = process.env.PORT || 8080;
 connectionDB();
 
 // CORS Middleware
-app.use(cors({
-    origin: "https://weddingcard-steel.vercel.app",
-    credentials: true
-}));
+app.use(cors({origin: process.env.FRONTEND_URL, credentials: true}));
 
 // Middleware
 app.use(express.json());
