@@ -218,7 +218,6 @@ const deleteTemplate = asyncHandler(async (req, res) => {
 
 // Get All Templates with Specific Attributes
 const handleGetTemplateAttributes = asyncHandler(async (req, res) => {
-    console.log("check")
     try {
         const colors = await Template.aggregate([
             {$unwind: "$colors"},
