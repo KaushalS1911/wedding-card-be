@@ -16,20 +16,25 @@ const PORT = process.env.PORT || 8080;
 // Database Connection
 connectionDB();
 
-// CORS Middleware
-app.use(cors({origin: process.env.FRONTEND_URL, credentials: true}));
+// CORS Middleware - FIXED
+app.use(cors({
+    origin: "*",
+    credentials: true,
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization"
+}));
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
-// Session Configuration
+// Session Configuration - FIXED
 app.use(session({
     secret: process.env.JWT_SECRET_KEY || "your_secret_key",
     resave: false,
     saveUninitialized: false,
-    cookie: {secure: false}
+    cookie: {secure: false, httpOnly: true, sameSite: "lax"}
 }));
 
 app.use(passport.initialize());
@@ -38,6 +43,7 @@ app.use(passport.session());
 // Routes
 app.get("/", (req, res) => res.send("Hello From Server"));
 
+// Import Routes
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
 const inquiryRouter = require("./routes/inquiry");
@@ -47,6 +53,7 @@ const blogRouter = require("./routes/blog");
 const templateRouter = require("./routes/template");
 const favouriteTemplatesRouter = require("./routes/favourite-templates");
 
+// Use Routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/inquiry", inquiryRouter);
