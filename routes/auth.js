@@ -10,7 +10,7 @@ router.post('/login', login);
 router.get('/me', auth, me);
 
 // 🔹 Google OAuth Login
-router.get('/google', passport.authenticate('google', {scope: ['email']}));
+router.get('/google', passport.authenticate('google', {scope: ['email', "profile"]}));
 
 // 🔹 Google OAuth Callback
 router.get('/google/callback',
