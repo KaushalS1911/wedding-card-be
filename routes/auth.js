@@ -22,7 +22,6 @@ router.get('/google/callback',
 
 // 🔹 Google Success & Failure Routes
 router.get('/google/success', (req, res) => {
-    if (!req.user) return res.status(401).json({message: "Not Authenticated"});
     res.json({message: 'Google authentication successful', user: req.user});
 });
 
