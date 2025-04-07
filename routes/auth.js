@@ -16,7 +16,9 @@ router.get('/google', passport.authenticate('google', {scope: ['profile', 'email
 router.get('/google/callback',
     passport.authenticate('google', {failureRedirect: '/api/auth/google/failure'}),
     (req, res) => {
-        res.redirect("https://weddingcard-steel.vercel.app");
+        const {token} = req.user;
+        const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}}`;
+        res.redirect(redirectUrl);
     }
 );
 
