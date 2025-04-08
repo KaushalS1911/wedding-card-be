@@ -1,9 +1,9 @@
 require('dotenv').config();
 const express = require("express");
+const passport = require('passport');
 const connectionDB = require("./configs/connection");
 const exceptionHandler = require("./middlewares/exceptionErrorHandler");
 const session = require('express-session');
-const passport = require('passport');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 

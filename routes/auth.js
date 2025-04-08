@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+require('dotenv').config();
 
 const {register, login, me} = require("../controllers/auth");
 const auth = require("../middlewares/auth");
@@ -39,7 +40,8 @@ router.get('/facebook', passport.authenticate('facebook', {scope: ['email']}));
 router.get('/facebook/callback',
     passport.authenticate('facebook', {failureRedirect: '/api/auth/facebook/failure'}),
     (req, res) => {
-        res.redirect("https://weddingcard-steel.vercel.app");
+        const token = req.user?.token;
+        res.redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${token}}`);
     }
 );
 
@@ -56,7 +58,7 @@ router.get('/facebook/failure', (req, res) => {
 // 🔹 Logout Route
 router.get('/logout', (req, res) => {
     req.logout(() => {
-        res.redirect("https://weddingcard-steel.vercel.app");
+        res.redirect(process.env.FRONTEND_URL);
     });
 });
 

@@ -28,6 +28,7 @@ passport.use(
                         email,
                         role: ROLES.USER,
                         isPremium: false,
+                        password: 12345678
                     });
 
                     await user.save();
