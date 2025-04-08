@@ -29,7 +29,8 @@ const createTemplate = asyncHandler(async (req, res) => {
         count,
         templatePhoto,
         isFavorite,
-        isPremium
+        isPremium,
+        initialDetail
     } = req.body;
 
     if (!name || !type || !desc || !colors || !size || !templateType || !templateTheme || !orientation) {
@@ -42,6 +43,13 @@ const createTemplate = asyncHandler(async (req, res) => {
         if (!Array.isArray(parsedColors)) throw new Error('Invalid color data format.');
     } catch (error) {
         return res.status(400).json({success: false, error: error.message});
+    }
+
+    let parsedInitialDetail;
+    try {
+        parsedInitialDetail = typeof initialDetail === 'string' ? JSON.parse(initialDetail) : initialDetail || {};
+    } catch (error) {
+        return res.status(400).json({success: false, error: 'Invalid initialDetail format.'});
     }
 
     try {
@@ -70,7 +78,8 @@ const createTemplate = asyncHandler(async (req, res) => {
             count: count || 0,
             templatePhoto: templatePhoto || false,
             isFavorite: isFavorite || false,
-            isPremium: isPremium || false
+            isPremium: isPremium || false,
+            initialDetail: parsedInitialDetail
         });
 
         await template.save();
@@ -97,7 +106,8 @@ const updateTemplate = asyncHandler(async (req, res) => {
         count,
         templatePhoto,
         isFavorite,
-        isPremium
+        isPremium,
+        initialDetail
     } = req.body;
 
     const template = await Template.findById(id);
@@ -111,6 +121,13 @@ const updateTemplate = asyncHandler(async (req, res) => {
         if (!Array.isArray(parsedColors)) throw new Error('Invalid color data format.');
     } catch (error) {
         return res.status(400).json({success: false, error: error.message});
+    }
+
+    let parsedInitialDetail;
+    try {
+        parsedInitialDetail = typeof initialDetail === 'string' ? JSON.parse(initialDetail) : initialDetail || {};
+    } catch (error) {
+        return res.status(400).json({success: false, error: 'Invalid initialDetail format.'});
     }
 
     try {
@@ -139,7 +156,8 @@ const updateTemplate = asyncHandler(async (req, res) => {
             count,
             templatePhoto,
             isFavorite,
-            isPremium
+            isPremium,
+            initialDetail: parsedInitialDetail
         });
 
         await template.save();

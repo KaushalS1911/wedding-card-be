@@ -72,6 +72,10 @@ const templateSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        initialDetail: {
+            type: mongoose.Schema.Types.Mixed,
+            default: {},
+        },
     },
     {timestamps: true}
 );
