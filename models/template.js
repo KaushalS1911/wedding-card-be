@@ -14,6 +14,10 @@ const colorSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    initialDetail: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {},
+    },
 });
 
 const templateSchema = new mongoose.Schema(
@@ -71,10 +75,6 @@ const templateSchema = new mongoose.Schema(
         isPremium: {
             type: Boolean,
             default: false,
-        },
-        initialDetail: {
-            type: mongoose.Schema.Types.Mixed,
-            default: {},
         },
     },
     {timestamps: true}

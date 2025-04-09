@@ -29,8 +29,7 @@ const createTemplate = asyncHandler(async (req, res) => {
         count,
         templatePhoto,
         isFavorite,
-        isPremium,
-        initialDetail
+        isPremium
     } = req.body;
 
     if (!name || !type || !desc || !colors || !size || !templateType || !templateTheme || !orientation) {
@@ -45,13 +44,6 @@ const createTemplate = asyncHandler(async (req, res) => {
         return res.status(400).json({success: false, error: error.message});
     }
 
-    let parsedInitialDetail;
-    try {
-        parsedInitialDetail = typeof initialDetail === 'string' ? JSON.parse(initialDetail) : initialDetail || {};
-    } catch (error) {
-        return res.status(400).json({success: false, error: 'Invalid initialDetail format.'});
-    }
-
     try {
         const files = req.files || [];
         const updatedColors = await Promise.all(parsedColors.map(async (color, index) => {
@@ -62,7 +54,11 @@ const createTemplate = asyncHandler(async (req, res) => {
             const colorFile = files.find(file => file.fieldname === `templateImages[${index}]`);
             const uploadedImage = await uploadImageForColor(color, colorFile);
 
-            return {...color, templateImages: uploadedImage};
+            return {
+                ...color,
+                templateImages: uploadedImage,
+                initialDetail: color.initialDetail || {}
+            };
         }));
 
         const template = new Template({
@@ -79,7 +75,6 @@ const createTemplate = asyncHandler(async (req, res) => {
             templatePhoto: templatePhoto || false,
             isFavorite: isFavorite || false,
             isPremium: isPremium || false,
-            initialDetail: parsedInitialDetail
         });
 
         await template.save();
@@ -106,8 +101,7 @@ const updateTemplate = asyncHandler(async (req, res) => {
         count,
         templatePhoto,
         isFavorite,
-        isPremium,
-        initialDetail
+        isPremium
     } = req.body;
 
     const template = await Template.findById(id);
@@ -123,13 +117,6 @@ const updateTemplate = asyncHandler(async (req, res) => {
         return res.status(400).json({success: false, error: error.message});
     }
 
-    let parsedInitialDetail;
-    try {
-        parsedInitialDetail = typeof initialDetail === 'string' ? JSON.parse(initialDetail) : initialDetail || {};
-    } catch (error) {
-        return res.status(400).json({success: false, error: 'Invalid initialDetail format.'});
-    }
-
     try {
         const files = req.files || [];
         const updatedColors = await Promise.all(parsedColors.map(async (color, index) => {
@@ -140,7 +127,11 @@ const updateTemplate = asyncHandler(async (req, res) => {
             const colorFile = files.find(file => file.fieldname === `templateImages[${index}]`);
             const uploadedImage = await uploadImageForColor(color, colorFile);
 
-            return {...color, templateImages: uploadedImage};
+            return {
+                ...color,
+                templateImages: uploadedImage,
+                initialDetail: color.initialDetail || {}
+            };
         }));
 
         Object.assign(template, {
@@ -156,8 +147,7 @@ const updateTemplate = asyncHandler(async (req, res) => {
             count,
             templatePhoto,
             isFavorite,
-            isPremium,
-            initialDetail: parsedInitialDetail
+            isPremium
         });
 
         await template.save();

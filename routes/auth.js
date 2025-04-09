@@ -18,7 +18,7 @@ router.get('/google/callback',
     passport.authenticate('google', {failureRedirect: '/api/auth/google/failure'}),
     (req, res) => {
         const {token} = req.user;
-        const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}}`;
+        const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}`;
         res.redirect(redirectUrl);
     }
 );
