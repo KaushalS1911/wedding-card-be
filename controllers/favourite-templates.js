@@ -13,9 +13,15 @@ const createFavouriteTemplate = asyncHandler(async (req, res) => {
 
     const newFavourite = await FavouriteTemplate.create(req.body);
 
-    await Template.findByIdAndUpdate(template, {isFavorite: true});
+    await Template.findByIdAndUpdate(template, {
+        $addToSet: {templateLiked: user},
+    });
 
-    res.status(201).json({success: true, data: newFavourite, message: 'Template added to favourites successfully'});
+    res.status(201).json({
+        success: true,
+        data: newFavourite,
+        message: 'Template added to favourites successfully',
+    });
 });
 
 // Get All Favourite Templates
@@ -66,10 +72,21 @@ const deleteFavouriteTemplate = asyncHandler(async (req, res) => {
         return res.status(404).json({success: false, message: 'Favourite not found'});
     }
 
-    await Template.findByIdAndUpdate(favourite.template, {isFavorite: false});
+    await Template.findByIdAndUpdate(favourite.template, {
+        $pull: {templateLiked: favourite.user},
+    });
+
+    const stillLiked = await FavouriteTemplate.exists({template: favourite.template});
+    if (!stillLiked) {
+        await Template.findByIdAndUpdate(favourite.template, {isFavorite: false});
+    }
+
     await favourite.deleteOne();
 
-    res.status(200).json({success: true, message: 'Favourite template removed successfully'});
+    res.status(200).json({
+        success: true,
+        message: 'Favourite template removed successfully',
+    });
 });
 
 module.exports = {
