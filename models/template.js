@@ -76,6 +76,11 @@ const templateSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        templateLiked: {
+            type: [mongoose.Schema.Types.ObjectId],
+            ref: 'User',
+            default: [],
+        },
     },
     {timestamps: true}
 );

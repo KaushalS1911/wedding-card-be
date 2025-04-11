@@ -29,7 +29,8 @@ const createTemplate = asyncHandler(async (req, res) => {
         count,
         templatePhoto,
         isFavorite,
-        isPremium
+        isPremium,
+        templateLiked
     } = req.body;
 
     if (!name || !type || !desc || !colors || !size || !templateType || !templateTheme || !orientation) {
@@ -75,6 +76,7 @@ const createTemplate = asyncHandler(async (req, res) => {
             templatePhoto: templatePhoto || false,
             isFavorite: isFavorite || false,
             isPremium: isPremium || false,
+            templateLiked: templateLiked || []
         });
 
         await template.save();
@@ -101,7 +103,8 @@ const updateTemplate = asyncHandler(async (req, res) => {
         count,
         templatePhoto,
         isFavorite,
-        isPremium
+        isPremium,
+        templateLiked
     } = req.body;
 
     const template = await Template.findById(id);
@@ -147,7 +150,8 @@ const updateTemplate = asyncHandler(async (req, res) => {
             count,
             templatePhoto,
             isFavorite,
-            isPremium
+            isPremium,
+            templateLiked: templateLiked || []
         });
 
         await template.save();
