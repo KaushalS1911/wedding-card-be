@@ -234,19 +234,31 @@ const handleGetTemplateAttributes = asyncHandler(async (req, res) => {
         const colors = await Template.aggregate([
             {$unwind: "$colors"},
             {
-                $group: {
-                    _id: "$colors.color",
-                    hex: {$first: "$colors.hex"}
+                $project: {
+                    color: {$toLower: "$colors.color"},
+                    hex: "$colors.hex"
                 }
             },
-            {$project: {_id: 0, color: "$_id", hex: 1}}
+            {
+                $group: {
+                    _id: "$color",
+                    hex: {$first: "$hex"}
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    color: "$_id",
+                    hex: 1
+                }
+            }
         ]);
 
         const templateThemes = await Template.distinct('templateTheme');
 
         const tags = await Template.aggregate([
             {$unwind: "$tags"},
-            {$group: {_id: "$tags"}},
+            {$group: {_id: {$toLower: "$tags"}}},
             {$project: {_id: 0, tag: "$_id"}}
         ]);
 
@@ -254,9 +266,9 @@ const handleGetTemplateAttributes = asyncHandler(async (req, res) => {
             success: true,
             message: 'Template attributes fetched successfully',
             data: {
-                colors: colors,
-                templateThemes: templateThemes,
-                tags: tags
+                colors,
+                templateThemes,
+                tags
             }
         });
     } catch (error) {
