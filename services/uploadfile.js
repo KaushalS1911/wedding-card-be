@@ -10,7 +10,7 @@ cloudinary.config({
 const uploadFile = async (fileBuffer) => {
     try {
         const fileSize = fileBuffer.length;
-        const maxFileSize = 10 * 1024 * 1024;
+        const maxFileSize = 50 * 1024 * 1024;
         if (fileSize > maxFileSize) {
             throw new Error("File size exceeds the maximum allowed limit.");
         }
