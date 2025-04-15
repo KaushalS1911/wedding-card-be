@@ -45,6 +45,8 @@ const blogRouter = require("./routes/blog");
 const templateRouter = require("./routes/template");
 const favouriteTemplatesRouter = require("./routes/favourite-templates");
 const userTemplateRouter = require("./routes/user-template");
+const paymentRoutes = require("./routes/paymentRoutes");
+const webhookRoute = require("./routes/webhookRoute");
 
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
@@ -55,6 +57,8 @@ app.use("/api/blog", blogRouter);
 app.use("/api/template", templateRouter);
 app.use("/api/favourite-template", favouriteTemplatesRouter);
 app.use("/api/user-template", userTemplateRouter);
+app.use("/api/payment", paymentRoutes);
+app.use("/", webhookRoute);
 
 app.use((req, res) => {
     res.status(404).json({status: 404, message: "Route does not exist"});

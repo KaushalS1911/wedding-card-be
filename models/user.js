@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
         default: ROLES.USER,
     },
     isPremium: {type: Boolean, default: false},
+    stripeCustomerId: {type: String, default: null},
 });
 
 userSchema.pre("save", async function (next) {
