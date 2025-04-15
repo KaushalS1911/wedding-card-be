@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8080;
 connectionDB();
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: true,
     credentials: true
 }));
 
