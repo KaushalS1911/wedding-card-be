@@ -58,7 +58,9 @@ const createTemplate = asyncHandler(async (req, res) => {
             return {
                 ...color,
                 templateImages: uploadedImage,
-                initialDetail: color.initialDetail || {}
+                initialDetail: typeof color.initialDetail === 'string'
+                    ? JSON.parse(color.initialDetail)
+                    : color.initialDetail || {}
             };
         }));
 
@@ -133,7 +135,9 @@ const updateTemplate = asyncHandler(async (req, res) => {
             return {
                 ...color,
                 templateImages: uploadedImage,
-                initialDetail: color.initialDetail || {}
+                initialDetail: typeof color.initialDetail === 'string'
+                    ? JSON.parse(color.initialDetail)
+                    : color.initialDetail || {}
             };
         }));
 
