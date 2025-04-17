@@ -8,12 +8,14 @@ const {
     userTemplateById,
     allUserTemplates,
 } = require('../controllers/user-template');
+const auth = require("../middlewares/auth");
+const {isAdmin} = require("../middlewares/isAdmin");
 
-router.post('/', createUserTemplate);
-router.get('/', allUserTemplates);
-router.get('/:id', userTemplateById);
-router.put('/:id', updateUserTemplate);
-router.delete('/:id', deleteUserTemplate);
-router.get('/user/:userId', userTemplatesByUserId);
+router.post('/', auth, createUserTemplate);
+router.get('/', auth, isAdmin, allUserTemplates);
+router.get('/:id', auth, userTemplateById);
+router.put('/:id', auth, updateUserTemplate);
+router.delete('/:id', auth, deleteUserTemplate);
+router.get('/user/:userId', auth, userTemplatesByUserId);
 
 module.exports = router;

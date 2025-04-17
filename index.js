@@ -10,6 +10,18 @@ const cookieParser = require("cookie-parser");
 require("./configs/passport-google");
 require("./configs/passport-facebook");
 
+const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
+const inquiryRouter = require("./routes/inquiry");
+const commanRouter = require("./routes/comman");
+const configRouter = require("./routes/config");
+const blogRouter = require("./routes/blog");
+const templateRouter = require("./routes/template");
+const favouriteTemplatesRouter = require("./routes/favourite-templates");
+const userTemplateRouter = require("./routes/user-template");
+const paymentRoutes = require("./routes/paymentRoutes");
+const webhookRoute = require("./routes/webhookRoute");
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -20,6 +32,7 @@ app.use(cors({
     credentials: true
 }));
 
+app.use("/", webhookRoute);
 app.use(express.json({limit: '100mb'}));
 app.use(express.urlencoded({limit: '100mb', extended: true}));
 app.use(cookieParser());
@@ -36,18 +49,6 @@ app.use(passport.session());
 
 app.get("/", (req, res) => res.send("Hello From Server"));
 
-const authRouter = require("./routes/auth");
-const userRouter = require("./routes/user");
-const inquiryRouter = require("./routes/inquiry");
-const commanRouter = require("./routes/comman");
-const configRouter = require("./routes/config");
-const blogRouter = require("./routes/blog");
-const templateRouter = require("./routes/template");
-const favouriteTemplatesRouter = require("./routes/favourite-templates");
-const userTemplateRouter = require("./routes/user-template");
-const paymentRoutes = require("./routes/paymentRoutes");
-const webhookRoute = require("./routes/webhookRoute");
-
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/inquiry", inquiryRouter);
@@ -58,7 +59,6 @@ app.use("/api/template", templateRouter);
 app.use("/api/favourite-template", favouriteTemplatesRouter);
 app.use("/api/user-template", userTemplateRouter);
 app.use("/api/payment", paymentRoutes);
-app.use("/", webhookRoute);
 
 app.use((req, res) => {
     res.status(404).json({status: 404, message: "Route does not exist"});

@@ -4,7 +4,6 @@ const User = require("../models/user");
 require('dotenv').config();
 
 exports.handleWebhook = async (req, res) => {
-    console.log(req, res)
     const sig = req.headers["stripe-signature"];
     let event;
 
